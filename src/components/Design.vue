@@ -73,7 +73,7 @@ export default {
     },
 
     onHashChanged (pizza) {
-      this.pizza = pizza
+      this.pizza = decodeURIComponent(pizza)
     },
 
     onAction (event) {

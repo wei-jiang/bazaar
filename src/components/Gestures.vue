@@ -12,7 +12,7 @@
       </div> -->
       <ul class="list">
         <li v-for="s in strokes">
-          <a class="padded-list" :href="'#!design/'+s.Name" >
+          <a class="padded-list" v-on:touchend="goDesign(s.Name)" @click="goDesign(s.Name)" >
             <canvas :id="s.Name" width="250" height="250"></canvas>
             <div>
               <h3 class="fit-parent">{{s.Name}}</h3>
@@ -39,7 +39,7 @@ export default {
   created: function() {
     // `this` points to the vm instance
     this.recognizer = recognizer;
-    console.log(`this.recognizer=`, this.recognizer);
+    // console.log(`this.recognizer=`, this.recognizer);
   },
   data() {
     return {
@@ -59,6 +59,10 @@ export default {
     this.drawStrokes();
   },
   methods: {
+    goDesign(name){
+      // location.href="#!help/margherita"
+      phonon.navigator().changePage('design', name);
+    },
     drawStrokes() {
       this.recognizer.GetUnistrokes().forEach(s => {
         // console.log(s.Name);

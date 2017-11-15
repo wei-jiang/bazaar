@@ -1,5 +1,5 @@
 <template>
-  <design data-page="true">
+  <design id="design" data-page="true">
     <header class="header-bar">
       <div class="left">
         <button class="btn pull-left icon icon-arrow-back" data-navigation="$previous-page"></button>
@@ -8,15 +8,13 @@
     </header>
 
     <div class="content">
-      <div class="padded-full">
-
-        <h2>Order</h2>
-
-        <p>1x Pizza: {{ pizza }}</p>
-
-        <button class="btn negative cancel" data-order="cancel" v-tap="onAction">Cancel</button>
-        <button class="btn btn-flat primary order" data-order="order" v-tap="onAction">Order</button>
+      <input type="text" v-model="strokeName" placeholder="名称">
+      <textarea v-model="comments" placeholder="功能说明文字"></textarea>
+      <div class="recognize-area">
+        <canvas></canvas>
       </div>
+      <button class="btn primary"  v-tap="onSave">保存</button>
+
     </div>
   </design>
 </template>
@@ -24,6 +22,7 @@
 <script>
 import Vue from 'vue'
 import recognizer from "../js/dollar";
+import RegCanvas from "../js/reg_canvas";
 // Directive to use tap events with VueJS
 Vue.directive('tap', {
   isFn: true, // important!
@@ -43,8 +42,9 @@ export default {
 
   data () {
     return {
-      pizza: '',
-      action: null
+      strokeName: '',
+      comments: '',
+      dirty: false
     }
   },
 
@@ -57,34 +57,59 @@ export default {
      * here we want to use onClose, onHidden and onHashChanged methods
      */
     this.app.on({page: 'design', preventClose: true}, this)
+    var canvas = document.querySelector('#design .content canvas');  
+    var rect = canvas.parentNode.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    this.reg_canvas = new RegCanvas(canvas)  
   },
 
   methods: {
+    onReady () {        
+      $('body').on('touchmove', function (event) {
+          event.preventDefault();
+      }); // end body.onTouchMove
+    },
     onClose (self) {
-      if (this.action !== null) {
+      if ( !this.dirty ) {
         self.close()
       } else {
-        phonon.alert('Before leaving this page, you must perform an action.', 'Action required')
+        var confirm = phonon.confirm("手势尚未保存，确认放弃修改吗？", '确认离开？', true, '放弃修改', '取消');
+        confirm.on('confirm', function() {
+          self.close()
+        } );
       }
     },
 
     onHidden () {
-      this.action = null
+      $('body').off('touchmove');
+      this.dirty = false
     },
 
-    onHashChanged (pizza) {
-      this.pizza = decodeURIComponent(pizza)
+    onHashChanged (sn) {
+      this.strokeName = decodeURIComponent(sn)
+      this.stroke = recognizer.GetUnistroke(this.strokeName);
     },
 
-    onAction (event) {
-      this.action = 'user-action'
-
-      if (event.target.getAttribute('data-order') === 'order') {
-        phonon.alert('Thank you for your order!', 'Dear customer')
-      } else {
-        phonon.alert('Your order has been canceled.', 'Dear customer')
-      }
+    onSave (event) {
+      this.reg_canvas.save(this.strokeName, this.comments)
+      phonon.alert(`${this.strokeName} 手势已保存`, '保存成功', true, '确定');
     }
   }
 }
 </script>
+<style scoped>
+.content {
+  display: flex;
+  flex-flow: column;
+}
+.recognize-area {
+  flex : 1 1 auto;
+  border : 2px solid red;
+}
+canvas {
+  
+  /* background-color:black;   */
+}
+
+</style>

@@ -85,9 +85,10 @@ function Rectangle(x, y, width, height) // constructor
 //
 // Unistroke class: a unistroke template
 //
-function Unistroke(name, points) // constructor
+function Unistroke(name, points, comments) // constructor
 {	
 	this.Name = name;
+	this.Comments = comments || '';
 	this.Points = Resample(points, NumPoints);
 	this.points = CloneObj(this.Points);
 	var radians = IndicativeAngle(this.Points);
@@ -193,21 +194,28 @@ function DollarRecognizer() // constructor
 			this.Unistrokes.push( new Unistroke( gestures[i].Name, gestures[i].points) );
 		}
 	}
+	this.GetUnistroke = function(name)
+	{	
+		for (var i = 0; i < this.Unistrokes.length; i++) {
+			if (this.Unistrokes[i].Name == name)
+				return this.Unistrokes[i];
+		}
+	}
 	this.GetUnistrokes = function()
 	{	
 		return this.Unistrokes;
 	}
-	this.UpdateGesture = function(name, points)
+	this.UpdateGesture = function(name, points, comments)
 	{		
 		var i = 0;
 		for (; i < this.Unistrokes.length; i++) {
 			if (this.Unistrokes[i].Name == name){
-				this.Unistrokes[i] = new Unistroke(name, points);
+				this.Unistrokes[i] = new Unistroke(name, points, comments);
 				return 'updated';
 			}				
 		}
 		if( i == this.Unistrokes.length ) {
-			this.Unistrokes[this.Unistrokes.length] = new Unistroke(name, points); // append new unistroke
+			this.Unistrokes[this.Unistrokes.length] = new Unistroke(name, points, comments); // append new unistroke
 			return 'added';
 		}
 	}

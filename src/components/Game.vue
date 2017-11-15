@@ -15,6 +15,7 @@
 </template>
 
 <script>
+  import dealer from "../js/dealer";
   import RegCanvas from "../js/reg_canvas";
   export default {
     name: 'GamePage',
@@ -37,6 +38,7 @@
             event.preventDefault();
         }); // end body.onTouchMove
       },
+      //no effect
       onClose (self) {
         alert('onClose')
         self.close()
@@ -50,20 +52,8 @@
     mounted () {
       //cause this is default page, so preventClose can not be true
       this.app.on({page: 'game', preventClose: false, content:null}, this)
-      var canvas = document.querySelector('.content canvas');  
-      this.reg_canvas = new RegCanvas(canvas)
-      window.onload = window.onresize = function () {              
-        var rect = canvas.parentNode.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-        /////////////////////////
-        // var ctx = canvas.getContext("2d");
-        // ctx.strokeStyle="green";
-        // ctx.beginPath();
-        // ctx.arc(100,100,50,0,2*Math.PI);
-        // ctx.stroke();
-        ///////////////////////////        
-      };
+      var canvas = document.querySelector('#game_main .content canvas');  
+      this.reg_canvas = new RegCanvas(canvas, dealer)      
     }
   }
 </script>
@@ -77,7 +67,7 @@
 .recognize-area {
 
   flex : 1 1 auto;
-  border : 2px solid red;
+  /* border : 2px solid red; */
 }
 canvas {
   

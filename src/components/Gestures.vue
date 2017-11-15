@@ -12,11 +12,12 @@
       </div> -->
       <ul class="list">
         <li v-for="s in strokes">
-          <a class="padded-list" v-on:touchend="goDesign(s.Name)" @click="goDesign(s.Name)" >
+          <a class="padded-list" >
             <canvas :id="s.Name" width="250" height="250"></canvas>
             <div>
               <h3 class="fit-parent">{{s.Name}}</h3>
-              <button class="fit-parent btn primary">点击编辑</button>
+              <h4 class="comments">{{s.Comments}}</h4>
+              <button class="btn fit-parent primary" v-on:touchend="goDesign(s.Name)" @click="goDesign(s.Name)">编辑</button>
             </div>
           </a>
         </li>
@@ -43,22 +44,29 @@ export default {
   },
   data() {
     return {
-      // lib: this.recognizer.StringifyGestures()
+      strokes: []
     };
   },
   computed: {
     libs() {
       return this.recognizer.StringifyGestures();
     },
-    strokes() {
-      return this.recognizer.GetUnistrokes();
-    }
+    // strokes() {
+    //   return this.recognizer.GetUnistrokes().slice(0);
+    // }
   },
   mounted() {
-    this.app.on({ page: "gestures", preventClose: false, content: null });
-    this.drawStrokes();
+    this.app.on({ page: "gestures", preventClose: false, content: null }, this);    
+    
   },
   methods: {
+    onReady () {        
+      console.log('onReady()')
+      this.strokes = this.recognizer.GetUnistrokes().slice(0);
+      this.$nextTick( () =>{
+        this.drawStrokes()
+      })
+    },
     goDesign(name){
       // location.href="#!help/margherita"
       phonon.navigator().changePage('design', name);
@@ -95,11 +103,14 @@ export default {
   display: flex;
   flex-direction: column;
 }
+.comments {
+  flex: 1;
+}
 .list a {
   display: flex;
   flex-direction: row;
 }
-h2 {
-  color: red;
+h3 {
+  color: purple;
 }
 </style>

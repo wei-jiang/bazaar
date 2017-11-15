@@ -12,7 +12,8 @@ function Point(x, y) // constructor
 }
 export default class RegCanvas {
     points = [];
-    constructor(canvas) {
+    constructor(canvas, dealer) {
+        this.dealer = dealer;
         this.canvas = canvas;
         this.context = canvas.getContext('2d');    
         this.isDrawing = false;
@@ -42,11 +43,14 @@ export default class RegCanvas {
             if (this.points.length >= 10)
             {  
                 var result = recognizer.Recognize(this.points, false);
+                if( result.Score > 90 && this.dealer && this.dealer[result.Name] ) {
+                    this.dealer[result.Name](result, this.points)
+                }
                 alert("Result: " + result.Name + " (" + round(result.Score,2) + ").");
             }
             else // fewer than 10 points were inputted
             {   
-                alert("Too few points made. Please try again.");
+                // alert("Too few points made. Please try again.");
             }
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         }
@@ -107,6 +111,10 @@ export default class RegCanvas {
         // pass the coordinates to the appropriate handler
         // console.log(type)
         this[type](coors);
+    }
+    save(name, comments) {
+        let ret = recognizer.UpdateGesture(name, this.points, comments)
+        // alert(ret)
     }
     init() {
         // detect touch capabilities

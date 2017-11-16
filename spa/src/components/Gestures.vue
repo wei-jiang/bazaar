@@ -5,11 +5,11 @@
       <div class="center">
         <h1 class="title">手势绑定</h1>
       </div>
+      <button class="btn pull-right icon icon-add" data-navigation="design"></button>
+      <button class="btn pull-right icon icon-sync with-circle" v-on:touchend="save_gestures()"></button>
     </header>
+    
     <div class="content">
-      <!-- <div class="padded-full">
-      {{libs}}
-      </div> -->
       <ul class="list">
         <li v-for="s in strokes">
           <a class="padded-list" >
@@ -17,7 +17,8 @@
             <div>
               <h3 class="fit-parent">{{s.Name}}</h3>
               <h4 class="comments">{{s.Comments}}</h4>
-              <button class="btn fit-parent primary" v-on:touchend="goDesign(s.Name)" @click="goDesign(s.Name)">编辑</button>
+              <button class="btn fit-parent primary" v-on:touchend="goDesign(s.Name)" >编辑</button>
+              <button class="btn fit-parent negative" v-on:touchend="delete_stroke(s.Name)" >删除</button>
             </div>
           </a>
         </li>
@@ -28,7 +29,9 @@
 </template>
 
 <script>
+import Vue from "vue";
 import recognizer from "../js/dollar";
+
 export default {
   name: "GesturesPage",
   props: {
@@ -43,37 +46,56 @@ export default {
     // console.log(`this.recognizer=`, this.recognizer);
   },
   data() {
-    return {
+    return {      
       strokes: []
     };
   },
   computed: {
     libs() {
       return this.recognizer.StringifyGestures();
-    },
+    }
     // strokes() {
     //   return this.recognizer.GetUnistrokes().slice(0);
     // }
   },
   mounted() {
-    this.app.on({ page: "gestures", preventClose: false, content: null }, this);    
-    
+    this.app.on({ page: "gestures", preventClose: false, content: null }, this);
   },
-  methods: {
-    onReady () {        
-      console.log('onReady()')
-      this.strokes = this.recognizer.GetUnistrokes().slice(0);
-      this.$nextTick( () =>{
-        this.drawStrokes()
+  methods: {    
+    save_gestures() {
+      let libs = this.recognizer.StringifyGestures();
+      $.ajax({
+        type: "POST",
+        url: "save_gestures",
+        contentType: "application/json; charset=utf-8",
+        timeout: 5000,
+        data: libs,
+        dataType: "text"
       })
+        .done(function(data) {
+          phonon.notif('手势保存成功', 3000, true, '取消');
+        })
+        .fail(function(err) {
+          
+        });
     },
-    goDesign(name){
+    delete_stroke(name) {
+      this.recognizer.DeleteByName(name);
+      this.onReady();
+    },
+    onReady() {
+      this.strokes = this.recognizer.GetUnistrokes().slice(0);
+      this.$nextTick(() => {
+        this.drawStrokes();
+      });
+    },
+    goDesign(name) {
       // location.href="#!help/margherita"
-      phonon.navigator().changePage('design', name);
+      phonon.navigator().changePage("design", name);
     },
     drawStrokes() {
       this.recognizer.GetUnistrokes().forEach(s => {
-        // console.log(s.Name);
+        console.log(s.Name);
         var can_mini = document.getElementById(s.Name);
         var context_mini = can_mini.getContext("2d");
         context_mini.clearRect(0, 0, can_mini.width, can_mini.height);

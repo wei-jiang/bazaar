@@ -19,14 +19,19 @@ export default class RegCanvas {
         this.isDrawing = false;
         this.init()
     }
-    touchstart ( p ) {
-                    
-        this.context.beginPath();            
-        this.context.moveTo(p.x, p.y);
-        
-        this.isDrawing = true;
+    clear(){
         this.points.length = 0;
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    touchstart ( p ) {                    
+        this.context.beginPath();            
+        this.context.moveTo(p.x, p.y);        
+        this.isDrawing = true;
+        
         this.points.push( new Point(p.x, p.y) );
+        if(this.dealer && this.dealer.touchstart) {
+            this.dealer.touchstart(this)
+        }
     }
     touchmove( p ) {
         if (this.isDrawing) {
@@ -43,16 +48,18 @@ export default class RegCanvas {
             if (this.points.length >= 10)
             {  
                 var result = recognizer.Recognize(this.points, false);
-                if( result.Score > 90 && this.dealer && this.dealer[result.Name] ) {
+                if( result.Score > 0.85 && this.dealer && this.dealer[result.Name] ) {
                     this.dealer[result.Name](result, this.points)
                 }
-                alert("Result: " + result.Name + " (" + round(result.Score,2) + ").");
+                // alert("Result: " + result.Name + " (" + round(result.Score,2) + ").");
             }
             else // fewer than 10 points were inputted
             {   
                 // alert("Too few points made. Please try again.");
             }
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            if(this.dealer && this.dealer.touchend) {
+                this.dealer.touchend(this)
+            }
         }
     }
     draw(event) {

@@ -4,7 +4,7 @@
       <div class="center">
         <h1 class="title"></h1>
       </div>
-      <a class="btn pull-right" v-on:touchend="goHelp" @click="goHelp">帮助</a>
+      <a class="btn pull-right" href="#!help">帮助</a>
     </header>
     <div class="content">
       <div class="recognize-area">

@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>自由集市</title>
+<link href="css/game.css" rel="stylesheet" type="text/css" />
+<script src="/socket.io/socket.io.js"></script>
+<script src="libs/jquery-3.2.1.min.js"></script>
+<body>
+    <script type="text/javascript">
+        window.wi = {
+            openid: "{{openid}}",
+            nickname: "{{nickname}}",
+            sex: "{{sex}}",
+            language: "{{ language }}",
+            value: "{{ city }}",
+            province: "{{ province }}",
+            country: "{{ country }}",
+            headimgurl: "{{ headimgurl }}"
+        };
+    </script>
+    <div class="ui">
+        <div class="hq">
+            <div id="self_panel"> <img /><h1 class="caption"></h1> </div>
+            <div id="target_panel"> <img/><h1 class="caption"></h1> </div>
+        </div>
+        <div class="content">
+            <div id="left"></div>
+            <div id="right"></div>
+        </div>
+        <div class="footer">
+            <input id='chat' placeholder="请输入聊天内容"/><button id="send">发送</button><h4 class="online_count">当前在线：0人</h4>
+        </div>
+    </div>
+    <script src="libs/ga.min.js"></script>
+    <script src="libs/plugins.min.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/path.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/net.js"></script>
+</body>

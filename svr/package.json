@@ -1,0 +1,35 @@
+{
+  "name": "wx_bazaar",
+  "description": "free wx market",
+  "author": "david",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "./node_modules/.bin/jade --hierarchy --pretty --out dist ./views/qr.jade"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.1",
+    "express": "^4.15.4",
+    "express-session": "^1.14.1",
+    "express-xml-bodyparser": "^0.3.0",
+    "helmet": "^3.4.0",
+    "jssha": "^1.6.1",
+    "lodash": "^4.17.4",
+    "mime": "^1.2.11",
+    "moment": "^2.18.1",
+    "nunjucks": "^3.0.1",
+    "request": "^2.74.0",
+    "serve-favicon": "^2.4.3",
+    "socket.io": "^2.0.3",
+    "sp-pay": "0.0.3",
+    "winston": "^2.4.0",
+    "winston-daily-rotate-file": "^1.7.2",
+    "xml": "^1.0.1"
+  }
+}

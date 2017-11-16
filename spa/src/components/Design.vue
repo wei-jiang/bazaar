@@ -13,7 +13,7 @@
       <div class="recognize-area">
         <canvas></canvas>
       </div>
-      <button class="btn primary"  v-tap="onSave">保存</button>
+      <button class="btn primary" v-tap="onSave">保存</button>
 
     </div>
   </design>
@@ -61,7 +61,12 @@ export default {
     var rect = canvas.parentNode.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
-    this.reg_canvas = new RegCanvas(canvas)  
+    let dealer = {
+      touchstart:function( ch ) {
+        ch.clear()
+      }
+    }
+    this.reg_canvas = new RegCanvas(canvas, dealer)  
   },
 
   methods: {
@@ -84,16 +89,24 @@ export default {
     onHidden () {
       $('body').off('touchmove');
       this.dirty = false
+      this.reg_canvas.clear()
+      this.comments = ''
     },
 
     onHashChanged (sn) {
       this.strokeName = decodeURIComponent(sn)
       this.stroke = recognizer.GetUnistroke(this.strokeName);
+      this.comments = this.stroke.Comments;
     },
 
     onSave (event) {
-      this.reg_canvas.save(this.strokeName, this.comments)
-      phonon.alert(`${this.strokeName} 手势已保存`, '保存成功', true, '确定');
+      if(this.strokeName && this.comments) {
+        this.reg_canvas.save(this.strokeName, this.comments)
+        phonon.alert(`${this.strokeName} 手势已保存`, '保存成功', true, '确定');
+      } else {
+        phonon.alert(`名称或备注不能为空`, '请填写信息', true, '确定');
+      }
+      
     }
   }
 }

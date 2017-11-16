@@ -9,6 +9,7 @@ Vue.config.ignoredElements = ['game', 'help', 'gestures', 'design', 'product', '
 require('phonon/dist/css/phonon.min.css')
 require('phonon/dist/js/phonon.js')
 
+window.dev = true;
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

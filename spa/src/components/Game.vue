@@ -1,10 +1,11 @@
 <template>
   <game id="game_main" data-page="true">
     <header class="header-bar">
+      <img src="res/hi0.jpg" class="pull-left"/>
       <div class="center">
         <h1 class="title"></h1>
       </div>
-      <a class="btn pull-right" href="#!help">帮助</a>
+      <button class="btn primary pull-right" data-navigation="help">帮助</button>
     </header>
     <div class="content">
       <div class="recognize-area">
@@ -58,6 +59,12 @@
   }
 </script>
 <style scoped>
+header {
+  background: transparent;
+}
+img {  
+  max-height: 100%;
+}
 #game_main{
   background-color: transparent;
 }

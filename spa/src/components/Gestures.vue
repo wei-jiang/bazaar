@@ -5,8 +5,8 @@
       <div class="center">
         <h1 class="title">手势绑定</h1>
       </div>
-      <button class="btn pull-right icon icon-add" data-navigation="design"></button>
-      <button class="btn pull-right icon icon-sync with-circle" v-on:touchend="save_gestures()"></button>
+      <button v-if="this.$isDev" class="btn pull-right icon icon-add" data-navigation="design"></button>
+      <button v-if="this.$isDev" class="btn pull-right icon icon-sync with-circle" v-on:touchend="save_gestures()"></button>
     </header>
     
     <div class="content">
@@ -18,7 +18,7 @@
               <h3 class="fit-parent">{{s.Name}}</h3>
               <h4 class="comments">{{s.Comments}}</h4>
               <button class="btn fit-parent primary" v-on:touchend="goDesign(s.Name)" >编辑</button>
-              <button class="btn fit-parent negative" v-on:touchend="delete_stroke(s.Name)" >删除</button>
+              <button v-if="this.$isDev" class="btn fit-parent negative" v-on:touchend="delete_stroke(s.Name)" >删除</button>
             </div>
           </a>
         </li>
@@ -44,6 +44,7 @@ export default {
     // `this` points to the vm instance
     this.recognizer = recognizer;
     // console.log(`this.recognizer=`, this.recognizer);
+    // console.log(this.myGlobalMethod(), this.$myMethod('ccc') );
   },
   data() {
     return {      

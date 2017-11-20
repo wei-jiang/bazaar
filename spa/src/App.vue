@@ -4,6 +4,8 @@
     <help :app="app"></help>
     <gestures :app="app"></gestures>
     <design :app="app"></design>
+    <goods :app="app"></goods>    
+    <chat :app="app"></chat>  
   </div>
 </template>
 
@@ -12,6 +14,8 @@ import Game from './components/Game.vue'
 import Help from './components/Help.vue'
 import Gestures from './components/Gestures.vue'
 import Design from './components/Design.vue'
+import Goods from './components/Goods.vue'
+import Chat from './components/Chat.vue'
 
 export default {
   name: 'app',
@@ -42,7 +46,9 @@ export default {
     Game,
     Help,
     Gestures,
-    Design
+    Design,
+    Goods,
+    Chat
   }
 }
 </script>

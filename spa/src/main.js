@@ -3,19 +3,37 @@
 import Vue from 'vue'
 import App from './App'
 import {init_game} from './game';
-
-Vue.config.ignoredElements = ['game', 'help', 'gestures', 'design', 'product', 'chat', 'notification']
+import './db';
+Vue.config.ignoredElements = [
+  'game', 'help', 'gestures', 
+  'design', 'product', 'chat', 
+  'notification', 'goods', 'chat']
 
 require('phonon/dist/css/phonon.min.css')
 require('phonon/dist/js/phonon.js')
 
-window.dev = true;
-/* eslint-disable no-new */
+let MyPlugin = {
+  install (Vue, options) {
+    // 1. add global method or property
+    Vue.myGlobalMethod = function () {
+      console.log(options)
+      return 'aaaa';
+    }
+    Vue.prototype.$myMethod = function (methodOptions) {
+      console.log(methodOptions, options)
+      return 'bbbb';
+    }
+    Vue.prototype.$isDev = options.dev;
+  }
+}
+
+Vue.use(MyPlugin, { dev: false })
 new Vue({
   el: '#app',
   template: '<App/>',
   components: { App }
 })
+
 window.onload = window.onresize = function fit_canvas() {           
   var canvas = document.querySelector('.content canvas');     
   var rect = canvas.parentNode.getBoundingClientRect();

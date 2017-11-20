@@ -1,23 +1,18 @@
-
-export default {
-    product: new Nedb({
-        filename: 'product.db',
-        autoload: true
-    }),
-    chat_log: new Nedb({
-        filename: 'chat_log.db',
-        autoload: true
-    }),
-    orders: new Nedb({
-        filename: 'orders.db',
-        autoload: true
-    }),
-    gestures: new Nedb({
-        filename: 'gestures.db',
-        autoload: true
-    }),
-    notification: new Nedb({
-        filename: 'notification.db',
-        autoload: true
-    })
+const idbAdapter = new LokiIndexedAdapter();
+const db = new loki("bazaar.db", {
+    adapter: idbAdapter,
+    autoload: true,
+    autoloadCallback: databaseInitialize,
+    autosave: true,
+    autosaveInterval: 1000
+});
+function databaseInitialize() {
+    window.db = {
+        products: db.getCollection("product") ? db.getCollection("product") : db.addCollection("product"),
+        chat_log: db.getCollection("chat_log") ? db.getCollection("chat_log") : db.addCollection("chat_log"),
+        orders: db.getCollection("orders") ? db.getCollection("orders") : db.addCollection("orders"),
+        gestures: db.getCollection("gestures") ? db.getCollection("gestures") : db.addCollection("gestures"),
+        notification: db.getCollection("notification") ? db.getCollection("notification") : db.addCollection("notification")
+    }
 }
+export default window.db;

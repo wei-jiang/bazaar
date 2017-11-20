@@ -13,7 +13,7 @@ export default {
     },
     "商品": function (result, points) {
         //p
-        alert("商品 功能开发中……")
+        phonon.navigator().changePage('goods', '');
     },
     "订单": function (result, points) {
         //o

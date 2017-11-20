@@ -17,6 +17,7 @@
         <!-- <button class="btn negative cancel" data-order="cancel" v-tap="onAction">Cancel</button>
         <button class="btn btn-flat primary order" data-order="order" v-tap="onAction">Order</button> -->
         <button class="btn fit-parent primary" data-navigation="gestures">手势设置</button>
+        <button class="btn fit-parent primary" data-navigation="chat">聊天记录</button>
       </div>
     </div>
   </help>

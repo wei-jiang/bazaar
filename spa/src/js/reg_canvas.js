@@ -1,5 +1,4 @@
 import recognizer from "./dollar";
-import db from "../db";
 
 function round(n, d) // round 'n' to 'd' decimals
 {
@@ -11,49 +10,47 @@ function Point(x, y) // constructor
     this.X = x;
     this.Y = y;
 }
-let loaded = false;
+function load_gestures() {
+    if(!window.db) return setTimeout(load_gestures, 1000);
+    let doc = db.gestures.findOne({})
+    if (doc) {
+        recognizer.ParseInGestures(doc.gestures)
+        console.log('load gestures from db; length=' + recognizer.Unistrokes.length)
+    } else {
+        // phonon.ajax({
+        //     method: 'GET',
+        //     url: '/static/default_gestures.txt',
+        //     dataType: 'text',
+        //     success: function(res, xhr) {
+        //         console.log(res);
+        //     }
+        // });
+        $.get("/static/default_gestures.txt", (data, status) => {
+            if (status == 'success') {
+                recognizer.ParseInGestures(data)
+                db.gestures.insert({
+                    gestures: data
+                })
+                console.log('load gestures from ajax')
+            } else {
+                alert('获取默认手势失败:' + status)
+            }
+        });
+
+    }
+}
+load_gestures()
 export default class RegCanvas {
     points = [];
-    
+
     constructor(canvas, dealer) {
         this.dealer = dealer;
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
         this.isDrawing = false;
         this.init()
-        this.load_gestures()
     }
-    load_gestures() {
-        if (!loaded) {
-            loaded = true;
-            db.gestures.findOne({}, (err, doc) => {
-                if (doc) {
-                    recognizer.ParseInGestures(doc.gestures)
-                    console.log('load gestures from db; length=' + recognizer.Unistrokes.length)
-                } else {
-                    // phonon.ajax({
-                    //     method: 'GET',
-                    //     url: '/static/default_gestures.txt',
-                    //     dataType: 'text',
-                    //     success: function(res, xhr) {
-                    //         console.log(res);
-                    //     }
-                    // });
-                    $.get("/static/default_gestures.txt", (data, status)=> {
-                        if(status == 'success') {
-                            recognizer.ParseInGestures(data)
-                            db.gestures.insert({
-                                gestures:data
-                            })
-                            console.log('load gestures from ajax')
-                        } else{
-                            alert('获取默认手势失败:' + status)
-                        }
-                    });
-                }
-            })
-        }
-    }
+
     clear() {
         this.points.length = 0;
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);

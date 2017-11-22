@@ -81,12 +81,15 @@ export default class RegCanvas {
                 var result = recognizer.Recognize(this.points, false);
                 if (result.Score > 0.85 && this.dealer && this.dealer[result.Name]) {
                     this.dealer[result.Name](result, this.points)
+                } else {
+                    this.dealer.no_recognize(this.points)
                 }
                 // alert("Result: " + result.Name + " (" + round(result.Score,2) + ").");
             }
             else // fewer than 10 points were inputted
             {
                 // alert("Too few points made. Please try again.");
+                this.dealer.few_touch(this.points, this.last_evt)
             }
             if (this.dealer && this.dealer.touchend) {
                 this.dealer.touchend(this)
@@ -99,6 +102,7 @@ export default class RegCanvas {
         let ox = event.offsetX, oy = event.offsetY;
         switch (event.type) {
             case "mousedown":
+                this.last_evt = event;
                 event.touches = [];
                 event.touches[0] = {
                     pageX: event.pageX,
@@ -114,7 +118,7 @@ export default class RegCanvas {
                 };
                 type = "touchmove";
                 break;
-            case "mouseup":
+            case "mouseup":                
                 event.touches = [];
                 event.touches[0] = {
                     pageX: event.pageX,
@@ -129,17 +133,17 @@ export default class RegCanvas {
         // touchend clear the touches[0], so we need to use changedTouches[0]
         var coors;
         if (event.type === "touchend") {
-            console.log("touchend", event.changedTouches[0])
+            // console.log("touchend", event.changedTouches[0])
             coors = {
                 x: event.changedTouches[0].pageX - offset.left,
                 y: event.changedTouches[0].pageY - offset.top
             };
         }
         else {
+            this.last_evt = event;
             // get the touch coordinates
             let can = event.touches[0].target;
             // console.log(can.offsetLeft, can.offsetTop, can.parentNode.parentNode.offsetLeft, can.parentNode.parentNode.offsetTop) 
-
             coors = {
                 x: event.touches[0].pageX - offset.left,
                 y: event.touches[0].pageY - offset.top

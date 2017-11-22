@@ -15,4 +15,5 @@ function databaseInitialize() {
         notification: db.getCollection("notification") ? db.getCollection("notification") : db.addCollection("notification")
     }
 }
+//export promise?
 export default window.db;

@@ -2,12 +2,14 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import {init_game} from './game';
+import game from './game/game';
 import './db';
 Vue.config.ignoredElements = [
   'game', 'help', 'gestures', 
   'design', 'product', 'chat', 
-  'notification', 'goods', 'chat']
+  'notification', 'goods', 'chat',
+  'profile'
+]
 
 require('phonon/dist/css/phonon.min.css')
 require('phonon/dist/js/phonon.js')
@@ -28,7 +30,7 @@ let MyPlugin = {
 }
 
 Vue.use(MyPlugin, { dev: false })
-new Vue({
+window.vm = new Vue({
   el: '#app',
   template: '<App/>',
   components: { App }
@@ -48,4 +50,4 @@ window.onload = window.onresize = function fit_canvas() {
   ///////////////////////////        
 };
 
-init_game();
+game.init();

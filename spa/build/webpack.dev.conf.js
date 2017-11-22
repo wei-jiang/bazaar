@@ -25,7 +25,7 @@ module.exports = merge(baseWebpackConfig, {
       jQuery: 'jquery'
     }),
     new CopyWebpackPlugin([
-      { from: './src/res', to: 'res' }
+      { from: './res', to: 'res' }
     ]),
     new webpack.DefinePlugin({
       'process.env': config.dev.env

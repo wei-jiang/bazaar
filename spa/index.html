@@ -9,6 +9,7 @@
     <title>自由集市</title>
     <script src="static/libs/lokijs.min.js"></script>
     <script src="static/libs/loki-indexed-adapter.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
   </head>
   <body style="background-color: transparent;">
       <script type="text/javascript">
@@ -17,7 +18,7 @@
               nickname: "{{nickname}}",
               sex: "{{sex}}",
               language: "{{ language }}",
-              value: "{{ city }}",
+              city: "{{ city }}",
               province: "{{ province }}",
               country: "{{ country }}",
               headimgurl: "{{ headimgurl }}"

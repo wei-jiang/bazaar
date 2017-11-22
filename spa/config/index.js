@@ -6,7 +6,7 @@ module.exports = {
     env: require('./prod.env'),
     // index: path.resolve(__dirname, '../dist/index.html'),
     // assetsRoot: path.resolve(__dirname, '../dist'),
-    index: path.resolve(__dirname, '../../svr/public/index.html'),
+    index: path.resolve(__dirname, '../../svr/views/bazaar.html'),
     assetsRoot: path.resolve(__dirname, '../../svr/public'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',

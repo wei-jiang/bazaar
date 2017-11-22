@@ -56,7 +56,10 @@ module.exports = {
         include: [
           path.join(projectRoot, 'src')
         ],
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        'query': {
+          'plugins': ['lodash']
+        }
       },
       {
         test: /\.json$/,

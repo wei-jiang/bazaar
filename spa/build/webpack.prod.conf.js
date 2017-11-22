@@ -33,7 +33,7 @@ var webpackConfig = merge(baseWebpackConfig, {
       jQuery: 'jquery'
     }),
     new CopyWebpackPlugin([
-      { from: './src/res', to: 'res' }
+      { from: './res', to: 'res' }
     ]),
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
     new webpack.DefinePlugin({

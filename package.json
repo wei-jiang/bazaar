@@ -5,7 +5,9 @@
   "main": "gulpfile.js",
   "scripts": {
     "build": "cd spa && npm run build",
-    "node": "cd svr && node app.js"
+    "node": "cd svr && node app.js",
+    "release": "cd svr && sh relkub.sh"
+    
   },
   "keywords": [],
   "author": "david",

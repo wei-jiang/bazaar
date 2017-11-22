@@ -190,16 +190,19 @@ io.on('connection', function (socket) {
         uuid2sock[data.openid] = socket;
         socket.on('disconnect', function () {
             delete uuid2sock[data.openid];
+            socket.broadcast.emit('player_offline', data);
         });
         let online_players = _.map(uuid2sock, s => {
             return s.player;
         });
+        socket.broadcast.emit('new_player_online', data);
         // console.log(online_players);
         fn(online_players);
     });
-    socket.on('player_action', function (data) {
-        socket.player.row = data.row;
-        socket.player.column = data.column;
+    socket.on('player_move', function (data) {
+        socket.player.x = data.x;
+        socket.player.y = data.y;
+        socket.broadcast.emit('player_move', data);
     });
     socket.on('ferret', function (name, fn) {
         fn('woot');

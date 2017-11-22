@@ -6,6 +6,7 @@
     <design :app="app"></design>
     <goods :app="app"></goods>    
     <chat :app="app"></chat>  
+    <profile :app="app"></profile>  
   </div>
 </template>
 
@@ -16,6 +17,7 @@ import Gestures from './components/Gestures.vue'
 import Design from './components/Design.vue'
 import Goods from './components/Goods.vue'
 import Chat from './components/Chat.vue'
+import Profile from './components/Profile.vue'
 
 export default {
   name: 'app',
@@ -48,7 +50,8 @@ export default {
     Gestures,
     Design,
     Goods,
-    Chat
+    Chat,
+    Profile
   }
 }
 </script>

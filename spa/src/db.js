@@ -1,19 +1,26 @@
 const idbAdapter = new LokiIndexedAdapter();
-const db = new loki("bazaar.db", {
-    adapter: idbAdapter,
-    autoload: true,
-    autoloadCallback: databaseInitialize,
-    autosave: true,
-    autosaveInterval: 1000
-});
-function databaseInitialize() {
-    window.db = {
-        products: db.getCollection("product") ? db.getCollection("product") : db.addCollection("product"),
-        chat_log: db.getCollection("chat_log") ? db.getCollection("chat_log") : db.addCollection("chat_log"),
-        orders: db.getCollection("orders") ? db.getCollection("orders") : db.addCollection("orders"),
-        gestures: db.getCollection("gestures") ? db.getCollection("gestures") : db.addCollection("gestures"),
-        notification: db.getCollection("notification") ? db.getCollection("notification") : db.addCollection("notification")
-    }
-}
+let db;
+
 //export promise?
-export default window.db;
+export default new Promise((resolve, reject) => {
+    if (db) {
+        resolve(db);
+    } else {
+        let bazaarDB = new loki("bazaar.db", {
+            adapter: idbAdapter,
+            autoload: true,
+            autoloadCallback: () => {
+                db = {
+                    products: bazaarDB.getCollection("product") ? bazaarDB.getCollection("product") : bazaarDB.addCollection("product"),
+                    chat_log: bazaarDB.getCollection("chat_log") ? bazaarDB.getCollection("chat_log") : bazaarDB.addCollection("chat_log"),
+                    orders: bazaarDB.getCollection("orders") ? bazaarDB.getCollection("orders") : bazaarDB.addCollection("orders"),
+                    gestures: bazaarDB.getCollection("gestures") ? bazaarDB.getCollection("gestures") : bazaarDB.addCollection("gestures"),
+                    notification: bazaarDB.getCollection("notification") ? bazaarDB.getCollection("notification") : bazaarDB.addCollection("notification")
+                }
+                resolve(db);
+            },
+            autosave: true,
+            autosaveInterval: 1000
+        });
+    }
+})

@@ -35,18 +35,18 @@
 </template>
 
 <script>
-import Vue from 'vue'
-
+import Vue from "vue";
+import adb from "../db";
 // Directive to use tap events with VueJS
-Vue.directive('tap', {
+Vue.directive("tap", {
   isFn: true, // important!
-  bind: function (el, bindings) {
-    el.on('tap', bindings.value)
+  bind: function(el, bindings) {
+    el.on("tap", bindings.value);
   }
-})
+});
 
 export default {
-  name: 'GoodsPage',
+  name: "GoodsPage",
   props: {
     app: {
       type: Object,
@@ -54,18 +54,18 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       goods: [],
       newItem: false,
 
-      new_title: '',
-      new_comments: '',
-      new_img: ''
-    }
+      new_title: "",
+      new_comments: "",
+      new_img: ""
+    };
   },
 
-  mounted () {
+  mounted() {
     /*
      * Phonon also supports objects
      * With VueJS, it is better to use "this"
@@ -73,47 +73,58 @@ export default {
      * If Phonon finds page events, it will call them
      * here we want to use onClose, onHidden and onHashChanged methods
      */
-    this.app.on({page: 'goods', preventClose: false}, this)
+    this.app.on({ page: "goods", preventClose: false }, this);
   },
 
   methods: {
     onReady() {
-      this.goods = db.products.find({});
+      adb.then(db => {
+        this.goods = db.products.find({});
+      });
     },
-    open_img(){
+    open_img() {
       $('input[type="file"]').click();
     },
     processFile(event) {
-      if(event.target.files.length == 0) return;
-      let img_file = event.target.files[0]
+      if (event.target.files.length == 0) return;
+      let img_file = event.target.files[0];
       var reader = new FileReader();
-      reader.onload = (e)=> {
-          this.new_img = e.target.result;
-          // console.log(this.new_img)
+      reader.onload = e => {
+        this.new_img = e.target.result;
+        // console.log(this.new_img)
       };
-      reader.readAsDataURL(img_file);      
+      reader.readAsDataURL(img_file);
     },
-    addGoods () {
+    addGoods() {
       this.newItem = false;
-      this.goods = this.goods.splice(0)
+      this.goods = this.goods.splice(0);
       let new_goods = {
         title: this.new_title,
         comments: this.new_comments,
-        img: this.resize2_img( $('#new_img')[0] )
-      }
-      db.products.insert(new_goods)
-      this.goods.push(new_goods)
+        img: this.resize2_img($("#new_img")[0])
+      };
+      adb.then(db => {
+        db.products.insert(new_goods);
+      });
+      this.goods.push(new_goods);
     },
-    saveGoods ( g ) {
-      console.log(g)
-      db.products.findAndUpdate( {
-        $loki : g.$loki
-      }, obj => g)
-      this.onReady()
+    saveGoods(g) {
+      console.log(g);
+      adb.then(db => {
+        db.products.findAndUpdate(
+          {
+            $loki: g.$loki
+          },
+          obj => g
+        );
+        this.onReady();
+      });
     },
-    delete_item (g) {
-      db.products.remove(g)
-      this.onReady()
+    delete_item(g) {
+      adb.then(db => {
+        db.products.remove(g);
+        this.onReady();
+      });
     },
     resize2_img(img) {
       var canvas = document.createElement("canvas");
@@ -125,19 +136,17 @@ export default {
       return canvas.toDataURL("image/png");
     }
   }
-}
+};
 </script>
 <style scoped>
 img {
   max-width: 100%;
   max-height: 30%;
 }
-input[type='file'] {
+input[type="file"] {
   display: none;
 }
 canvas {
-  
   /* background-color:black;   */
 }
-
 </style>

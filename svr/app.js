@@ -184,11 +184,12 @@ var get_sock_remote_ip = function (sock) {
     return rip;
 }
 io.on('connection', function (socket) {
-    socket.on('player_online', function (data, fn) {
-        socket.removeAllListeners();
+    socket.on('player_online', function (data, fn) {        
         socket.player = data;
         uuid2sock[data.openid] = socket;
         socket.on('disconnect', function () {
+            // socket.removeAllListeners();
+            // console.log('disconnect:' + data.openid);
             delete uuid2sock[data.openid];
             socket.broadcast.emit('player_offline', data);
         });
@@ -196,13 +197,29 @@ io.on('connection', function (socket) {
             return s.player;
         });
         socket.broadcast.emit('new_player_online', data);
-        // console.log(online_players);
+        // console.log('online_players', data);
         fn(online_players);
     });
     socket.on('player_move', function (data) {
-        socket.player.x = data.x;
-        socket.player.y = data.y;
+        if(socket.player){
+            socket.player.x = data.x;
+            socket.player.y = data.y;
+        }        
+        // console.log('player_move', data)
         socket.broadcast.emit('player_move', data);
+    });
+    socket.on('test', function (data) {     
+        console.log('test', data)
+    });
+    socket.on('speak_to_all', function (data) {     
+        // console.log('speak_to_all', data)
+        socket.broadcast.emit('speak_to_all', data);
+    });
+    socket.on('speak_to_target', function (data) {    
+        // console.log('speak_to_target', data)
+        let target_sock = uuid2sock[data.target_oid]; 
+        delete data.target_oid;
+        target_sock && target_sock.emit('speak_to_target', data);
     });
     socket.on('ferret', function (name, fn) {
         fn('woot');

@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import game from './game/game';
 import './db';
+import './net';
 Vue.config.ignoredElements = [
   'game', 'help', 'gestures', 
   'design', 'product', 'chat', 

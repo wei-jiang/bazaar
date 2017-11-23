@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
+    "moment": "^2.19.2",
     "phonon": "^1.4.0",
     "vue": "^2.1.0"
   },

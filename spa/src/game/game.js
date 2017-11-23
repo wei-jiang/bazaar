@@ -2,7 +2,7 @@ import '../libs/ga.all.min.js';
 // require('./libs/plugins.min.js')
 import Player from './player.js';
 import _ from 'lodash'
-
+import net from '../net'
 let g;
 var world, mplayer, faceTo, camera;
 
@@ -27,10 +27,13 @@ class Game {
     this.canvas = g.canvas;
     this.mplayer = this.new_player(wi, true)
     g.state = this.play.bind(this);
-
+    net.post_online(this.mplayer)
   }
   play() {
     _.each( this.players, p => p.update() )
+  }
+  player_infos(){
+    return _.map(this.players, p=> p.wi );
   }
   get_player_by_id(oid){
     return _.find(this.players, p=> p.wi.openid == oid );

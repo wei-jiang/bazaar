@@ -160,6 +160,10 @@ class Player {
     this.player.x = Math.max(-18, Math.min(this.player.x + this.player.vx, this.world.width - this.player.width + 18));
     this.player.y = Math.max(-10, Math.min(this.player.y + this.player.vy, this.world.height - this.player.height));
   }
+  translate(x, y) {
+    this.player.x = x;
+    this.player.y = y;
+  }
   move(dx, dy) {
     console.log(dx, dy)
     let magnitude = Math.sqrt(dx * dx + dy * dy);

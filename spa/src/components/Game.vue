@@ -1,20 +1,21 @@
 <template>
-  <game id="game_main" data-page="true">
-    <div class="header">
-        <img :src="headimgurl" v-if="show_head_panel" v-on:touchend="show_profile"/>
-        <div class="title" v-if="show_head_panel">{{wi.nickname}}</div>
-        <i class="icon icon-close with-circle" v-if="show_head_panel" v-on:touchend="show_head_panel=false"></i>
-        <button class="btn primary help" data-navigation="help">帮助</button>      
-    </div>
-    <div class="content">
-      <div class="recognize-area">
-        <canvas></canvas>
+    <game id="game_main" data-page="true">
+      <div class="header">
+          <img :src="headimgurl" v-if="show_head_panel" v-on:touchend="show_profile"/>
+          <div class="title" v-if="show_head_panel">{{wi.nickname}}</div>
+          <i class="icon icon-close with-circle" v-if="show_head_panel" v-on:touchend="clear_target"></i>
+          <button class="btn icon icon-info-outline with-circle help" data-navigation="help"></button>      
       </div>
-    </div>
-    <div class="footer">
-        <div class="count" >在线人数：{{online_count}}人</div>  
-    </div>
-  </game>
+      <div class="content">
+        <div class="recognize-area">
+          <canvas></canvas>
+        </div>
+      </div>
+      <div class="footer">
+          <div class="count" >在线人数：{{online_count}}人</div>  
+      </div>
+    </game>
+
 </template>
 
 <script>
@@ -31,8 +32,8 @@ export default {
   data() {
     return {
       online_count: 0,
-      show_head_panel:false,
-      wi:{
+      show_head_panel: false,
+      wi: {
         openid: "",
         nickname: "",
         sex: "",
@@ -46,24 +47,30 @@ export default {
   },
   computed: {
     headimgurl() {
-      return /http/i.test(this.wi.headimgurl) ? this.wi.headimgurl : 'res/hi0.jpg';
+      return /http/i.test(this.wi.headimgurl)
+        ? this.wi.headimgurl
+        : "res/hi0.jpg";
     }
   },
   created: function() {
-    this.$root.$on('show_header', (data)=>{
+    this.$root.$on("show_header", data => {
       // alert(data + '——in game component');
       window.target_player = data;
-      this.show_header(data)      
-    })
-    this.$root.$on('count_changed', (data)=>{
-      this.online_count = data;     
-    })
+      this.show_header(data);
+    });
+    this.$root.$on("count_changed", data => {
+      this.online_count = data;
+    });
   },
   methods: {
-    show_profile(){
-      phonon.navigator().changePage('profile', '');
+    clear_target(){
+      this.show_head_panel=false
+      window.target_player = null;
     },
-    show_header(wi){
+    show_profile() {
+      phonon.navigator().changePage("profile", "");
+    },
+    show_header(wi) {
       this.show_head_panel = true;
       this.wi = wi;
     },
@@ -98,21 +105,21 @@ export default {
 <style scoped>
 .footer {
   bottom: 0px;
-
 }
-.count{
+.count {
   margin-left: auto;
 }
-.footer, .header {
+.footer,
+.header {
   display: flex;
   flex-direction: row;
   position: absolute;
   z-index: 9;
-  width:100%;
+  width: 100%;
   /* height: 60px; */
   background: transparent;
 }
-.help{
+.help {
   margin-left: auto;
 }
 .title {

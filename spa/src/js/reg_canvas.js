@@ -1,4 +1,5 @@
 import recognizer from "./dollar";
+import adb from "../db";
 
 function round(n, d) // round 'n' to 'd' decimals
 {
@@ -11,33 +12,34 @@ function Point(x, y) // constructor
     this.Y = y;
 }
 function load_gestures() {
-    if(!window.db) return setTimeout(load_gestures, 1000);
-    let doc = db.gestures.findOne({})
-    if (doc) {
-        recognizer.ParseInGestures(doc.gestures)
-        console.log('load gestures from db; length=' + recognizer.Unistrokes.length)
-    } else {
-        // phonon.ajax({
-        //     method: 'GET',
-        //     url: '/static/default_gestures.txt',
-        //     dataType: 'text',
-        //     success: function(res, xhr) {
-        //         console.log(res);
-        //     }
-        // });
-        $.get("/static/default_gestures.txt", (data, status) => {
-            if (status == 'success') {
-                recognizer.ParseInGestures(data)
-                db.gestures.insert({
-                    gestures: data
-                })
-                console.log('load gestures from ajax')
-            } else {
-                alert('获取默认手势失败:' + status)
-            }
-        });
+    adb.then(db => {
+        let doc = db.gestures.findOne({})
+        if (doc) {
+            recognizer.ParseInGestures(doc.gestures)
+            console.log('load gestures from db; length=' + recognizer.Unistrokes.length)
+        } else {
+            // phonon.ajax({
+            //     method: 'GET',
+            //     url: '/static/default_gestures.txt',
+            //     dataType: 'text',
+            //     success: function(res, xhr) {
+            //         console.log(res);
+            //     }
+            // });
+            $.get("/static/default_gestures.txt", (data, status) => {
+                if (status == 'success') {
+                    recognizer.ParseInGestures(data)
+                    db.gestures.insert({
+                        gestures: data
+                    })
+                    console.log('load gestures from ajax')
+                } else {
+                    alert('获取默认手势失败:' + status)
+                }
+            });
+        }
+    })
 
-    }
 }
 load_gestures()
 export default class RegCanvas {
@@ -118,7 +120,7 @@ export default class RegCanvas {
                 };
                 type = "touchmove";
                 break;
-            case "mouseup":                
+            case "mouseup":
                 event.touches = [];
                 event.touches[0] = {
                     pageX: event.pageX,

@@ -5,7 +5,7 @@
       <div class="center">        
         <h1 class="title">聊天记录</h1>
       </div>
-      <button class="btn pull-right icon icon-add" v-on:touchend="newItem=true"></button>
+      <button class="btn pull-right " v-on:touchend="clear()">清空</button>
     </header>
 
     <div class="content">
@@ -13,32 +13,38 @@
       <ul class="list">
         <li v-for="c in chat_log">
           <div class="padded-list" >
-            <input type="text" v-model="g.title" placeholder="名称">
-            <textarea v-model="g.comments" placeholder="商品描述"></textarea>
-            <img :src="g.img"/>
-            <button class="btn fit-parent primary" v-on:touchend="saveGoods(g)" >保存</button>
-            <button class="btn fit-parent negative" v-on:touchend="delete_item(g)" >删除</button>
+            <div>
+              <img :src="headimgurl(c.headimgurl)"/><div class='caption'>{{c.dt}}&nbsp{{c.from}}对<i class="target">{{c.to}}</i>说：</div>
+            </div>
+            <div>{{c.content}}</div>
           </div>
         </li>
       </ul>
-      
+      <div class="input-wrapper">
+        <div class="prompt">对<i class="target">{{target}}</i>说：</div>
+        <input v-model="content" placeholder="聊天内容">
+        <button class="btn primary" v-on:touchend="send">发送</button>
+      </div>
     </div>
   </chat>
 </template>
 
 <script>
-import Vue from 'vue'
-
+import Vue from "vue";
+import moment from "moment";
+import adb from "../db";
+import net from '../net'
+// const moment = require('moment');
 // Directive to use tap events with VueJS
-Vue.directive('tap', {
+Vue.directive("tap", {
   isFn: true, // important!
-  bind: function (el, bindings) {
-    el.on('tap', bindings.value)
+  bind: function(el, bindings) {
+    el.on("tap", bindings.value);
   }
-})
+});
 
 export default {
-  name: 'ChatPage',
+  name: "ChatPage",
   props: {
     app: {
       type: Object,
@@ -46,18 +52,15 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       chat_log: [],
-      newItem: false,
-
-      new_title: '',
-      new_comments: '',
-      new_img: ''
-    }
+      target: "所有人",
+      content: ""
+    };
   },
 
-  mounted () {
+  mounted() {
     /*
      * Phonon also supports objects
      * With VueJS, it is better to use "this"
@@ -65,47 +68,71 @@ export default {
      * If Phonon finds page events, it will call them
      * here we want to use onClose, onHidden and onHashChanged methods
      */
-    this.app.on({page: 'chat', preventClose: false}, this)
+    this.app.on({ page: "chat", preventClose: false }, this);
   },
 
   methods: {
-    onReady() {
-      this.chat_log = db.chat_log.find({});
+    headimgurl(hiu) {
+      return /http/i.test(hiu) ? hiu : "res/hi0.jpg";
     },
-    open_img(){
+    clear() {
+      adb.then(db => {
+        db.chat_log.remove( db.chat_log.find({}) );
+        this.chat_log = db.chat_log.find({});
+      });
+    },
+    send() {
+      adb.then(db => {
+        let chat_info = {
+          from: wi.nickname,
+          to: this.target,
+          headimgurl: wi.headimgurl,
+          content: this.content,
+          dt: moment().format("YYYY-MM-DD HH:mm:ss")
+        };
+        if(chat_info.to == "所有人"){
+          net.emit('speak_to_all', chat_info)
+        } else {
+          chat_info.target_oid = window.target_player.openid;
+          net.emit('speak_to_target', chat_info)
+        }
+        //this line change chat_info content?
+        db.chat_log.insert(chat_info);
+        this.content = ''
+        this.chat_log = db.chat_log.find({});
+        
+      });
+    },
+    onReady() {
+      this.target = window.target_player ? window.target_player.nickname : '所有人';
+      adb.then(db => {
+        this.chat_log = db.chat_log.find({});
+      });
+      // console.log( moment().format("YYYY-MM-DD HH:mm:ss SSS") )
+    },
+    open_img() {
       $('input[type="file"]').click();
     },
     processFile(event) {
-      if(event.target.files.length == 0) return;
-      let img_file = event.target.files[0]
+      if (event.target.files.length == 0) return;
+      let img_file = event.target.files[0];
       var reader = new FileReader();
-      reader.onload = (e)=> {
-          this.new_img = e.target.result;
-          // console.log(this.new_img)
+      reader.onload = e => {
+        this.new_img = e.target.result;
+        // console.log(this.new_img)
       };
-      reader.readAsDataURL(img_file);      
+      reader.readAsDataURL(img_file);
     },
-    addGoods () {
+    addGoods() {
       this.newItem = false;
-      this.goods = this.goods.splice(0)
+      this.goods = this.goods.splice(0);
       let new_goods = {
         title: this.new_title,
         comments: this.new_comments,
-        img: this.resize2_img( $('#new_img')[0] )
-      }
-      db.products.insert(new_goods)
-      this.goods.push(new_goods)
-    },
-    saveGoods ( g ) {
-      console.log(g)
-      db.products.findAndUpdate( {
-        $loki : g.$loki
-      }, obj => g)
-      this.onReady()
-    },
-    delete_item (g) {
-      db.products.remove(g)
-      this.onReady()
+        img: this.resize2_img($("#new_img")[0])
+      };
+      db.products.insert(new_goods);
+      this.goods.push(new_goods);
     },
     resize2_img(img) {
       var canvas = document.createElement("canvas");
@@ -117,19 +144,41 @@ export default {
       return canvas.toDataURL("image/png");
     }
   }
-}
+};
 </script>
 <style scoped>
-img {
-  max-width: 100%;
-  max-height: 30%;
+.padded-list img {
+  width: 50px;
+  height: 50px;
 }
-input[type='file'] {
+.padded-list > div{
+  display: flex;
+  flex-direction: row;
+}
+input[type="file"] {
   display: none;
 }
-canvas {
-  
-  /* background-color:black;   */
+.content, .padded-list {
+  display: flex;
+  flex-direction: column;
 }
-
+.content .list {
+  flex: 1;
+}
+.input-wrapper {
+  margin-top: auto;
+  display: flex;
+  flex-direction: row;
+}
+.input-wrapper input {
+  flex: 1;
+  border: 1px solid red;
+}
+.target {
+  color: green;
+}
+.prompt, .caption {
+  margin: auto;
+  /* font-size: 2em; */
+}
 </style>

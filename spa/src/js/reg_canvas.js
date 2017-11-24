@@ -84,19 +84,36 @@ export default class RegCanvas {
                 if (result.Score > 0.85 && this.dealer && this.dealer[result.Name]) {
                     this.dealer[result.Name](result, this.points)
                 } else {
-                    this.dealer.no_recognize(this.points)
+                    this.dealer && this.dealer.no_recognize && this.dealer.no_recognize(this.points)
                 }
                 // alert("Result: " + result.Name + " (" + round(result.Score,2) + ").");
             }
             else // fewer than 10 points were inputted
             {
                 // alert("Too few points made. Please try again.");
-                this.dealer.few_touch(this.points, this.last_evt)
+                this.dealer && this.dealer.few_touch && this.dealer.few_touch(this.points, this.last_evt)
             }
             if (this.dealer && this.dealer.touchend) {
                 this.dealer.touchend(this)
             }
         }
+    }
+    draw_stroke(name) {
+        this.clear()
+        this.context.beginPath();
+        let origin = {
+            X: this.canvas.width / 2,
+            Y: this.canvas.height / 2 + 5
+        };
+        let scale = Math.min(this.canvas.width, this.canvas.height)
+        var ps = recognizer.GetGesturePoints(name, scale, origin);
+        // console.log(ps);
+        this.context.moveTo(ps[0].X, ps[0].Y);
+        for (var i = 1; i < ps.length; ++i) {
+            this.context.lineTo(ps[i].X, ps[i].Y);
+            this.context.stroke();
+        }
+        this.points = ps;
     }
     draw(event) {
         let type = null;
@@ -158,7 +175,13 @@ export default class RegCanvas {
     }
     save(name, comments) {
         let ret = recognizer.UpdateGesture(name, this.points, comments)
-        // alert(ret)
+        adb.then(db => {
+            let data = recognizer.StringifyGestures();
+            db.gestures.remove(db.gestures.find({}));
+            db.gestures.insert({
+                gestures: data
+            });
+        });
     }
     init() {
         // detect touch capabilities

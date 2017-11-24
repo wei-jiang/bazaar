@@ -11,6 +11,7 @@ class Game {
   constructor() {
     g = ga(512, 896, this.setup.bind(this),
       [
+        "res/imgs.json",
         "res/ornament.png",
         "res/walkcycle.png",
         "res/bazaar.json"

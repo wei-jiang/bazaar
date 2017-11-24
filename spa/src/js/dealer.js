@@ -13,9 +13,21 @@ export default {
         //p
         phonon.navigator().changePage('goods', '');
     },
+    "购买": function (result, points) {
+        //b
+        if(!target_player.seller){
+            phonon.alert('对方不是卖家', '无商品可买')
+        } else {            
+            net.emit('get_target_goods', target_player.openid, data=>{
+                target_player.goods = data;
+                phonon.navigator().changePage('buy', '');
+            })
+        }
+        
+    },
     "订单": function (result, points) {
         //o
-        phonon.notif("订单 功能开发中…… && emit test", 3000)
+        phonon.notif("订单 功能开发中…… ", 3000)
         // net.emit('test', "net.emit data")
     },
     "通知": function (result, points) {

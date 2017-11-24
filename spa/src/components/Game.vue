@@ -3,6 +3,7 @@
       <div class="header">
           <img :src="headimgurl" v-if="show_head_panel" v-on:touchend="show_profile"/>
           <div class="title" v-if="show_head_panel">{{wi.nickname}}</div>
+          <div class="title" v-if="show_head_panel && wi.seller">(商人)</div>
           <i class="icon icon-close with-circle" v-if="show_head_panel" v-on:touchend="clear_target"></i>
           <button class="btn icon icon-info-outline with-circle help" data-navigation="help"></button>      
       </div>
@@ -123,7 +124,8 @@ export default {
   margin-left: auto;
 }
 .title {
-  font-size: 38px;
+  margin: auto;
+  font-size: 30px;
   color: rgb(113, 9, 139);
 }
 img {

@@ -16,13 +16,18 @@
             <div>
               <img :src="headimgurl(c.headimgurl)"/><div class='caption'>{{c.dt}}&nbsp{{c.from}}对<i class="target">{{c.to}}</i>说：</div>
             </div>
-            <div>{{c.content}}</div>
+            <div>
+              <div>{{c.content}}</div>
+              <img v-if="c.img" :src="c.img"/>
+            </div>
           </div>
         </li>
       </ul>
       <div class="input-wrapper">
         <div class="prompt">对<i class="target">{{target}}</i>说：</div>
         <input v-model="content" placeholder="聊天内容">
+        <input type="file" @change="processFile($event)">
+        <i class="icon icon-add with-circle" v-on:touchend="open_img"></i>
         <button class="btn primary" v-on:touchend="send">发送</button>
       </div>
     </div>
@@ -51,7 +56,13 @@ export default {
       require: true
     }
   },
-
+  created: function() {
+    this.$root.$on("refresh_chat_log", data => {
+      adb.then(db => {
+        this.chat_log = db.chat_log.find({});
+      });
+    });
+  },
   data() {
     return {
       chat_log: [],
@@ -81,12 +92,14 @@ export default {
         this.chat_log = db.chat_log.find({});
       });
     },
-    send() {
+    send(img) {
+      if( !(this.content || img) ) return;
       adb.then(db => {
         let chat_info = {
           from: wi.nickname,
           to: this.target,
           headimgurl: wi.headimgurl,
+          img,
           content: this.content,
           dt: moment().format("YYYY-MM-DD HH:mm:ss")
         };
@@ -118,21 +131,13 @@ export default {
       let img_file = event.target.files[0];
       var reader = new FileReader();
       reader.onload = e => {
-        this.new_img = e.target.result;
-        // console.log(this.new_img)
+        let img = new Image(400, 400);
+        img.src = e.target.result;
+        img.onload = ()=>{
+          this.send( this.resize2_img(img) )
+        }
       };
       reader.readAsDataURL(img_file);
-    },
-    addGoods() {
-      this.newItem = false;
-      this.goods = this.goods.splice(0);
-      let new_goods = {
-        title: this.new_title,
-        comments: this.new_comments,
-        img: this.resize2_img($("#new_img")[0])
-      };
-      db.products.insert(new_goods);
-      this.goods.push(new_goods);
     },
     resize2_img(img) {
       var canvas = document.createElement("canvas");
@@ -180,5 +185,8 @@ input[type="file"] {
 .prompt, .caption {
   margin: auto;
   /* font-size: 2em; */
+}
+input[type="file"] {
+  display: none;
 }
 </style>

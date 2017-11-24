@@ -6,19 +6,19 @@ class Player {
     this.world = world;
     this.wi = wi;
     this.player = g.sprite(g.filmstrip("res/walkcycle.png", 64, 64));
-    this.title = g.text(wi.nickname) ;
+    this.title = g.text(wi.nickname);
     let spawn_x = world.getObject("mplayer").x;
     let spawn_y = world.getObject("mplayer").y;
-    this.player.x = wi.x || g.randomInt(spawn_x - 50, spawn_x + 50); 
-    this.player.y = wi.y || g.randomInt(spawn_y - 50, spawn_y + 50); 
+    this.player.x = wi.x || g.randomInt(spawn_x - 50, spawn_x + 50);
+    this.player.y = wi.y || g.randomInt(spawn_y - 50, spawn_y + 50);
 
     //Add the player sprite the map's "objects" layer group
     let playersLayer = world.getObject("players");
     playersLayer.addChild(this.player);
     playersLayer.addChild(this.title);
     this.player.putTop(this.title);
- 
-    if(is_main_player) {
+
+    if (is_main_player) {
       this.camera = g.worldCamera(world, g.canvas);
       this.camera.centerOver(this.player);
     }
@@ -36,18 +36,30 @@ class Player {
     //Use the `show` method to display the player's `right` state
     this.last_face2 = this.states.right;
     this.player.show(this.last_face2);
-    this.player.fps = 18;
+    this.player.fps = 18;    
+
+    this.sign = this.g.sprite("sell.png");   
+    playersLayer.addChild(this.sign); 
+    this.show_sign(wi.seller)
   }
-  get_loc(){
+  show_sign( flag ){
+    
+    if(flag){
+      this.sign.visible = true;
+    } else{
+      this.sign.visible = false;
+    }     
+  }
+  get_loc() {
     return {
-      x:this.player.x,
-      y:this.player.y,
+      x: this.player.x,
+      y: this.player.y,
     }
   }
-  on_hit(){
+  on_hit() {
     window.vm.$emit('show_header', this.wi);
   }
-  test_hit(x, y) {    
+  test_hit(x, y) {
     var hit = false;
     let sprite = this.player;
     //Is the sprite rectangular?
@@ -77,9 +89,10 @@ class Player {
       hit = magnitude < sprite.radius;
     }
     // console.log('player test_hit', hit)
-    return hit;    
+    return hit;
   }
-  vanish(){
+  vanish() {
+    this.g.remove(this.sign)
     this.g.remove(this.title)
     this.g.remove(this.player)
   }
@@ -102,53 +115,54 @@ class Player {
   }
   update() {
     this.player.putTop(this.title);
+    this.title.putTop(this.sign);
     this.animate()
     this.do_move()
     this.is_blocked()
     this.camera && this.camera.follow(this.player);
   }
-  animate(){
-    if(this.player.vx == 0 && this.player.vy == 0){
+  animate() {
+    if (this.player.vx == 0 && this.player.vy == 0) {
       this.player.show(this.last_face2);
       this.player.can_play_anim = true;
       return;
     }
-    if(this.player.vx > 0){
-      if(this.player.vx > Math.abs(this.player.vy) ) {
-        if(this.player.can_play_anim || this.last_face2 != this.states.right) {
+    if (this.player.vx > 0) {
+      if (this.player.vx > Math.abs(this.player.vy)) {
+        if (this.player.can_play_anim || this.last_face2 != this.states.right) {
           this.player.playSequence(this.states.walkRight);
           this.last_face2 = this.states.right;
           this.player.can_play_anim = false;
         }
-        
-      } else if(this.player.vy > 0) {
-        if(this.player.can_play_anim || this.last_face2 != this.states.down) {
+
+      } else if (this.player.vy > 0) {
+        if (this.player.can_play_anim || this.last_face2 != this.states.down) {
           this.player.playSequence(this.states.walkDown);
           this.last_face2 = this.states.down;
           this.player.can_play_anim = false;
         }
       } else {
-        if(this.player.can_play_anim || this.last_face2 != this.states.up) {
+        if (this.player.can_play_anim || this.last_face2 != this.states.up) {
           this.player.playSequence(this.states.walkUp);
           this.last_face2 = this.states.up;
           this.player.can_play_anim = false;
         }
       }
     } else {
-      if( Math.abs(this.player.vx) > Math.abs(this.player.vy) ) {
-        if(this.player.can_play_anim || this.last_face2 != this.states.left) {
+      if (Math.abs(this.player.vx) > Math.abs(this.player.vy)) {
+        if (this.player.can_play_anim || this.last_face2 != this.states.left) {
           this.player.playSequence(this.states.walkLeft);
           this.last_face2 = this.states.left;
           this.player.can_play_anim = false;
         }
-      } else if(this.player.vy > 0) {
-        if(this.player.can_play_anim || this.last_face2 != this.states.down) {
+      } else if (this.player.vy > 0) {
+        if (this.player.can_play_anim || this.last_face2 != this.states.down) {
           this.player.playSequence(this.states.walkDown);
           this.last_face2 = this.states.down;
           this.player.can_play_anim = false;
         }
       } else {
-        if(this.player.can_play_anim || this.last_face2 != this.states.up) {
+        if (this.player.can_play_anim || this.last_face2 != this.states.up) {
           this.player.playSequence(this.states.walkUp);
           this.last_face2 = this.states.up;
           this.player.can_play_anim = false;
@@ -156,7 +170,7 @@ class Player {
       }
     }
   }
-  do_move(){
+  do_move() {
     this.player.x = Math.max(-18, Math.min(this.player.x + this.player.vx, this.world.width - this.player.width + 18));
     this.player.y = Math.max(-10, Math.min(this.player.y + this.player.vy, this.world.height - this.player.height));
   }
@@ -172,15 +186,15 @@ class Player {
     let player = this.player;
     player.vy = dy * 2;
     player.vx = dx * 2;
-    
+
     clearTimeout(player.fatigue_tm);
-    (function fatigue(){
+    (function fatigue() {
       player.vx = Math.abs(player.vx) > 0.6 ? Math.max(0, (Math.abs(player.vx) - 0.1)) * Math.sign(player.vx) : 0;
       player.vy = Math.abs(player.vy) > 0.6 ? Math.max(0, (Math.abs(player.vy) - 0.1)) * Math.sign(player.vy) : 0;
-      if( Math.abs(player.vx) > 0 || Math.abs(player.vy) ) {
+      if (Math.abs(player.vx) > 0 || Math.abs(player.vy)) {
         player.fatigue_tm = setTimeout(fatigue, 1000);
-      }          
-    })(); 
+      }
+    })();
   }
   init() {
 

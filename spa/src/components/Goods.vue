@@ -14,6 +14,10 @@
         <textarea v-model="new_comments" placeholder="商品描述"></textarea>
         <img id='new_img' :src="new_img"/>
         <input type="file" @change="processFile($event)">
+        <div class="input-wrapper">
+            <input class="with-label" type="number" id="price"  v-model="new_price">
+            <label class="floating-label" for="price">售价（元）</label>
+        </div>
         <button class="btn fit-parent" v-on:touchend="open_img()" >添加图片</button>
         <button class="btn fit-parent primary" v-on:touchend="addGoods()" >添加商品</button>
         <button class="btn fit-parent negative"  v-on:touchend="newItem=false">取消</button>
@@ -24,6 +28,10 @@
             <input type="text" v-model="g.title" placeholder="名称">
             <textarea v-model="g.comments" placeholder="商品描述"></textarea>
             <img :src="g.img"/>
+            <div class="input-wrapper">
+                <input class="with-label" type="number" id="price"  v-model="g.price">
+                <label class="floating-label" for="price">售价（元）</label>
+            </div>
             <button class="btn fit-parent primary" v-on:touchend="saveGoods(g)" >保存</button>
             <button class="btn fit-parent negative" v-on:touchend="delete_item(g)" >删除</button>
           </div>
@@ -61,7 +69,8 @@ export default {
 
       new_title: "",
       new_comments: "",
-      new_img: ""
+      new_img: "",
+      new_price: 0
     };
   },
 
@@ -80,6 +89,17 @@ export default {
     onReady() {
       adb.then(db => {
         this.goods = db.products.find({});
+        if (this.goods.length == 0) {
+          this.$root.$emit("notify_seller_status", {
+            openid: wi.openid,
+            seller: null
+          });
+        } else {
+          this.$root.$emit("notify_seller_status", {
+            openid: wi.openid,
+            seller: true
+          });
+        }
       });
     },
     open_img() {
@@ -101,12 +121,13 @@ export default {
       let new_goods = {
         title: this.new_title,
         comments: this.new_comments,
+        price: this.new_price,
         img: this.resize2_img($("#new_img")[0])
       };
       adb.then(db => {
         db.products.insert(new_goods);
+        this.onReady();
       });
-      this.goods.push(new_goods);
     },
     saveGoods(g) {
       console.log(g);

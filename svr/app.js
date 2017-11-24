@@ -128,13 +128,14 @@ app.post('/save_gestures', (req, res) => {
 app.post('/buy_product', function (req, res) {
     if (!req.body) return res.sendStatus(400);
     var data = req.body;
+    console.log(data)
     let order_id = new moment().format("YYYYMMDDHHmmssSSS");
     let order_info = {
         notify_url: get_myurl_by_req(req) + '/notify',
         mch_id: '102580087392',
-        body: "微信测试商品",
+        body: data.title,
         out_trade_no: order_id,
-        total_fee: 1,
+        total_fee: data.total,
         sub_openid: data.openid,
         mch_create_ip: get_req_ip(req)
     };
@@ -184,7 +185,7 @@ var get_sock_remote_ip = function (sock) {
     return rip;
 }
 io.on('connection', function (socket) {
-    socket.on('player_online', function (data, fn) {        
+    socket.on('player_online', function (data, fn) {
         socket.player = data;
         uuid2sock[data.openid] = socket;
         socket.on('disconnect', function () {
@@ -201,23 +202,39 @@ io.on('connection', function (socket) {
         fn(online_players);
     });
     socket.on('player_move', function (data) {
-        if(socket.player){
+        if (socket.player) {
             socket.player.x = data.x;
             socket.player.y = data.y;
-        }        
+        }
         // console.log('player_move', data)
         socket.broadcast.emit('player_move', data);
     });
-    socket.on('test', function (data) {     
+    socket.on('test', function (data) {
         console.log('test', data)
     });
-    socket.on('speak_to_all', function (data) {     
+    socket.on('speak_to_all', function (data) {
         // console.log('speak_to_all', data)
         socket.broadcast.emit('speak_to_all', data);
     });
-    socket.on('speak_to_target', function (data) {    
+    socket.on('notify_seller_status', function (data) {
+        // console.log('notify_seller_status', data)
+        socket.broadcast.emit('notify_seller_status', data);
+    });
+    socket.on('get_target_goods', function (data, cb) {
+        // console.log('get_target_goods', data)
+        let target_sock = uuid2sock[data];
+        if (target_sock) {
+            target_sock.emit('get_target_goods', data, goods => {
+                // console.log(goods)
+                cb(goods)
+            });
+        } else {
+            cb({ ret: -1 })
+        }
+    });
+    socket.on('speak_to_target', function (data) {
         // console.log('speak_to_target', data)
-        let target_sock = uuid2sock[data.target_oid]; 
+        let target_sock = uuid2sock[data.target_oid];
         delete data.target_oid;
         target_sock && target_sock.emit('speak_to_target', data);
     });

@@ -8,12 +8,12 @@
     </header>
 
     <div class="content">
-      <input type="text" v-model="strokeName" placeholder="名称">
-      <textarea v-model="comments" placeholder="功能说明文字"></textarea>
+      <input type="text" v-model="strokeName" placeholder="名称" v-bind:readonly="!$isDev">
+      <textarea v-model="comments" placeholder="功能说明文字" v-bind:readonly="!$isDev"></textarea>
       <div class="recognize-area">
         <canvas></canvas>
       </div>
-      <button class="btn primary" v-tap="onSave">保存</button>
+      <button class="btn primary" v-on:touchend="onSave">保存</button>
 
     </div>
   </design>
@@ -62,8 +62,9 @@ export default {
     canvas.width = rect.width;
     canvas.height = rect.height;
     let dealer = {
-      touchstart:function( ch ) {
+      touchstart: ch => {
         ch.clear()
+        this.dirty = true
       }
     }
     this.reg_canvas = new RegCanvas(canvas, dealer)  
@@ -97,10 +98,13 @@ export default {
       this.strokeName = decodeURIComponent(sn)
       this.stroke = recognizer.GetUnistroke(this.strokeName);
       this.comments = this.stroke.Comments;
+      this.reg_canvas.draw_stroke(this.stroke.Name)
     },
 
     onSave (event) {
+      if(!this.dirty) return;
       if(this.strokeName && this.comments) {
+        this.dirty = false
         this.reg_canvas.save(this.strokeName, this.comments)
         phonon.alert(`${this.strokeName} 手势已保存`, '保存成功', true, '确定');
       } else {

@@ -5,8 +5,9 @@
       <div class="center">
         <h1 class="title">手势绑定</h1>
       </div>
-      <button v-if="this.$isDev" class="btn pull-right icon icon-add" data-navigation="design"></button>
-      <button v-if="this.$isDev" class="btn pull-right icon icon-sync with-circle" v-on:touchend="save_gestures()"></button>
+      <button v-if="$isDev" class="btn pull-right icon icon-add" data-navigation="design"></button>
+      <button v-if="$isDev" class="btn pull-right icon icon-sync with-circle" v-on:touchend="save_gestures()"></button>
+      <button class="btn pull-right" v-on:touchend="get_default_gestures()">恢复默认</button>
     </header>
     
     <div class="content">
@@ -18,7 +19,7 @@
               <h3 class="fit-parent">{{s.Name}}</h3>
               <h4 class="comments">{{s.Comments}}</h4>
               <button class="btn fit-parent primary" v-on:touchend="goDesign(s.Name)" >编辑</button>
-              <button v-if="this.$isDev" class="btn fit-parent negative" v-on:touchend="delete_stroke(s.Name)" >删除</button>
+              <button v-if="$isDev" class="btn fit-parent negative" v-on:touchend="delete_stroke(s.Name)" >删除</button>
             </div>
           </a>
         </li>
@@ -31,7 +32,7 @@
 <script>
 import Vue from "vue";
 import recognizer from "../js/dollar";
-
+import adb from "../db";
 export default {
   name: "GesturesPage",
   props: {
@@ -47,7 +48,7 @@ export default {
     // console.log(this.myGlobalMethod(), this.$myMethod('ccc') );
   },
   data() {
-    return {      
+    return {
       strokes: []
     };
   },
@@ -62,7 +63,25 @@ export default {
   mounted() {
     this.app.on({ page: "gestures", preventClose: false, content: null }, this);
   },
-  methods: {    
+  methods: {
+    get_default_gestures() {
+      $.get("/static/default_gestures.txt", (data, status) => {
+        if (status == "success") {
+          recognizer.Clear();
+          recognizer.ParseInGestures(data);
+          adb.then(db => {
+            db.gestures.remove(db.gestures.find({}));
+            db.gestures.insert({
+              gestures: data
+            });
+          });
+          this.onReady();
+          phonon.alert("恢复默认手持成功", "手势已重置");
+        } else {
+          alert("获取默认手势失败:" + status);
+        }
+      });
+    },
     save_gestures() {
       let libs = this.recognizer.StringifyGestures();
       $.ajax({
@@ -74,11 +93,9 @@ export default {
         dataType: "text"
       })
         .done(function(data) {
-          phonon.notif('手势保存成功', 3000, true, '取消');
+          phonon.notif("手势保存成功", 3000, true, "取消");
         })
-        .fail(function(err) {
-          
-        });
+        .fail(function(err) {});
     },
     delete_stroke(name) {
       this.recognizer.DeleteByName(name);
@@ -96,7 +113,7 @@ export default {
     },
     drawStrokes() {
       this.recognizer.GetUnistrokes().forEach(s => {
-        console.log(s.Name);
+        // console.log(s.Name);
         var can_mini = document.getElementById(s.Name);
         var context_mini = can_mini.getContext("2d");
         context_mini.clearRect(0, 0, can_mini.width, can_mini.height);

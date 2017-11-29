@@ -1,5 +1,76 @@
 import _ from 'lodash'
 
+const world_width = 512;
+const world_height = 512;
+let designed_world ={
+    1:{2:0}
+    //...
+}
+
+function cur_worlds(x, y){
+    return [
+        [x, y],
+        [x, y-1],
+        [x+1, y-1],
+        [x+1, y],
+        [x+1, y+1],
+        [x, y+1],
+        [x-1, y+1],
+        [x-1, y],
+        [x-1, y-1]
+    ];
+}
+function load_own_world(g, world, player){
+    let map_x = Math.floor(player.x / world_width);
+    let map_y = Math.floor(player.y / world_height);
+    if(player.last_map && player.last_map.x == map_x && player.last_map.y == map_y ){
+        return world;
+    }
+    player.last_map = {
+        x:map_x,
+        y:map_y
+    }
+    let adjacent_sw_array = cur_worlds(map_x, map_y);
+    // console.log(adjacent_sw_array);
+    let loaded_map = world.loaded_world_map;
+    let small_worlds = adjacent_sw_array.map( coor =>{
+        let map_x = coor[0], map_y = coor[1];
+        if( !loaded_map[ map_x ] ){
+            loaded_map[ map_x ] = {}
+        }
+        if( !loaded_map[map_x][map_y] ){
+            //let's skip designed_world for now
+            if(world.candidate.length > 0){
+                let sel_index = g.randomInt(0, world.candidate.length -1);
+                let thisMap = world.candidate[sel_index].clone()
+                thisMap.map_x = map_x;
+                thisMap.map_y = map_y;
+                world.addChild(thisMap)
+                thisMap.setPosition(map_x*world_width, map_y*world_height);
+                // console.log(thisMap.x, thisMap.y, thisMap.layer);
+                loaded_map[map_x][map_y] = thisMap;                
+            }
+        }
+        return loaded_map[map_x][map_y];
+    })
+    player.setLayer(9);
+    console.log('world.children.length:' + world.children.length);
+    console.log('world.width:' + world.width + '; world.height:' + world.height);
+    console.log('world.x:' + world.x + '; world.y:' + world.y);
+    if(world.children.length > 30){
+        world.children.forEach( m =>{
+            if( Math.abs( Math.abs(m.x) - Math.abs(player.x) ) > 512 
+                && Math.abs( Math.abs(m.y) - Math.abs(player.y) ) > 512) {
+                loaded_map[m.map_x][m.map_y] = null;
+                g.remove(m);
+            }
+        })
+        console.log('after clean world.children.length=' + world.children.length);
+    }
+    
+    return world;
+}
+
 class Player {
   constructor(g, world, wi, is_main_player) {
     this.g = g;
@@ -7,20 +78,25 @@ class Player {
     this.wi = wi;
     this.player = g.sprite(g.filmstrip("res/walkcycle.png", 64, 64));
     this.title = g.text(wi.nickname);
-    let spawn_x = world.getObject("mplayer").x;
-    let spawn_y = world.getObject("mplayer").y;
-    this.player.x = wi.x || g.randomInt(spawn_x - 50, spawn_x + 50);
-    this.player.y = wi.y || g.randomInt(spawn_y - 50, spawn_y + 50);
+    this.sign = this.g.sprite("sell.png");
+    this.player.x = wi.x || g.randomInt(world.world_center - 100, world.world_center + 100);
+    this.player.y = wi.y || g.randomInt(world.world_center - 100, world.world_center + 100);
 
-    //Add the player sprite the map's "objects" layer group
-    let playersLayer = world.getObject("players");
-    playersLayer.addChild(this.player);
-    playersLayer.addChild(this.title);
+    world.add(this.player, this.title, this.sign);
     this.player.putTop(this.title);
-
+    this.player.setLayer = layer=>{
+      this.player.layer = layer
+      this.title.layer = layer -1
+      this.sign.layer = layer -2
+    }
     if (is_main_player) {
       this.camera = g.worldCamera(world, g.canvas);
       this.camera.centerOver(this.player);
+      window.onload = window.onresize = ()=> {
+        this.camera.width = g.canvas.width = window.innerWidth;
+        this.camera.height = g.canvas.height = window.innerHeight;
+      };
+      load_own_world(g, world, this.player);
     }
     this.player.collisionArea = { x: 22, y: 44, width: 20, height: 20 };
     this.states = {
@@ -36,19 +112,18 @@ class Player {
     //Use the `show` method to display the player's `right` state
     this.last_face2 = this.states.right;
     this.player.show(this.last_face2);
-    this.player.fps = 18;    
+    this.player.fps = 18;
 
-    this.sign = this.g.sprite("sell.png");   
-    playersLayer.addChild(this.sign); 
+    
     this.show_sign(wi.seller)
   }
-  show_sign( flag ){
-    
-    if(flag){
+  show_sign(flag) {
+
+    if (flag) {
       this.sign.visible = true;
-    } else{
+    } else {
       this.sign.visible = false;
-    }     
+    }
   }
   get_loc() {
     return {
@@ -96,30 +171,22 @@ class Player {
     this.g.remove(this.title)
     this.g.remove(this.player)
   }
-  is_blocked() {
-    let obstaclesMapArray = this.world.getObject("obstacles").data;
-    let playerVsGround = this.g.hitTestTile(this.player, obstaclesMapArray, 0, this.world, "every");
 
-    //If the player isn't touching any ground tiles, it means its touching
-    //an obstacle, like a bush, the bottom of a wall, or the bottom of a
-    //tree
-    if (!playerVsGround.hit) {
-      //To prevent the player from moving, subtract its velocity from its position
-      this.player.x -= this.player.vx;
-      this.player.y -= this.player.vy;
-      this.player.vx = 0;
-      this.player.vy = 0;
-      //You can find the gid number of the thing the player hit like this:
-      //console.log(obstaclesMapArray[playerVsGround.index]);
-    }
-  }
   update() {
     this.player.putTop(this.title);
     this.title.putTop(this.sign);
     this.animate()
-    this.do_move()
-    this.is_blocked()
-    this.camera && this.camera.follow(this.player);
+    this.do_move()    
+    if( this.camera ){
+      //main player
+      window.vm.$emit('player_coordinate', {
+        x:this.player.x-this.world.world_center,
+        y:this.player.y-this.world.world_center
+      });
+      // window.vm.$emit('debug_info', `vx=${this.player.vx}, vy=${this.player.vy}`);
+      this.camera.follow(this.player);
+      load_own_world(this.g, this.world, this.player);
+    }
   }
   animate() {
     if (this.player.vx == 0 && this.player.vy == 0) {
@@ -171,8 +238,8 @@ class Player {
     }
   }
   do_move() {
-    this.player.x = Math.max(-18, Math.min(this.player.x + this.player.vx, this.world.width - this.player.width + 18));
-    this.player.y = Math.max(-10, Math.min(this.player.y + this.player.vy, this.world.height - this.player.height));
+    this.g.move(this.player)
+    this.g.contain(this.player, this.world)
   }
   translate(x, y) {
     this.player.x = x;
@@ -189,10 +256,12 @@ class Player {
 
     clearTimeout(player.fatigue_tm);
     (function fatigue() {
-      player.vx = Math.abs(player.vx) > 0.6 ? Math.max(0, (Math.abs(player.vx) - 0.1)) * Math.sign(player.vx) : 0;
-      player.vy = Math.abs(player.vy) > 0.6 ? Math.max(0, (Math.abs(player.vy) - 0.1)) * Math.sign(player.vy) : 0;
-      if (Math.abs(player.vx) > 0 || Math.abs(player.vy)) {
+      player.vx = Math.abs(player.vx) > 0.5 ? Math.max(0, (Math.abs(player.vx) - 0.1)) * Math.sign(player.vx) : 0;
+      player.vy = Math.abs(player.vy) > 0.5 ? Math.max(0, (Math.abs(player.vy) - 0.1)) * Math.sign(player.vy) : 0;
+      if (Math.abs(player.vx) > 0 || Math.abs(player.vy) > 0 ) {
         player.fatigue_tm = setTimeout(fatigue, 1000);
+      } else{
+        console.log('player.vx,player.vy all == 0')
       }
     })();
   }

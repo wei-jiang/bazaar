@@ -1,4 +1,5 @@
-
+const world_size = 1024;
+const world_center = world_size/2;
 var g = ga(512, 512, setup,
     [
         "res/walkcycle.png",
@@ -13,10 +14,7 @@ g.fps = 30;
 //Declare global sprites, objects, and variables
 //that you want to access in all the game functions and states
 
-var world, mplayer, elfTextures, world = g.group(), camera,
-    items, message,
-    calculateNewPath, currentPathSprites = [],
-    destinationX, destinationY;
+var world, mplayer, camera, craft,coordinate;
 
 //A `setup` function that will run only once.
 //Use it for initialization tasks
@@ -28,7 +26,11 @@ function setup() {
             return g.sprite("res/gnd.png")
         }
     }
-
+    world = g.staticGroup();
+    world.width = world_size;
+    world.height = world_size;
+    // world.setPosition(-32768, -32768);
+    // craft = g.emptyGroup();
     world.loaded_world_map = {};
     world.candidate = [];
     world.candidate.push(small_world);
@@ -37,8 +39,10 @@ function setup() {
     // mplayer.update = function (){      
     //     mplayer.putTop( mplayer.title );
     // }
-
-    mplayer.setPosition(0, 0);
+    coordinate = g.text("(0,0)", "40px sans-serif", "blue");
+    coordinate.setPosition(10, 10);
+    world.add(mplayer);
+    mplayer.setPosition(world_center, world_center);
     load_own_world(world, mplayer);
     
     camera = g.worldCamera(world, g.canvas);
@@ -117,16 +121,16 @@ function setup() {
             mplayer.show(mplayer.states.down);
         }
     };
-
+    console.log('mplayer',mplayer.x, mplayer.y);
     //Change the game state to `play`
     g.state = play;
 }
 
 //The `play` function will run in a loop
 function play() {
-
+    coordinate.content = `(${mplayer.x-world_center},${mplayer.y-world_center})`;
     g.move(mplayer)
-    g.contain(mplayer, world.origin)
+    g.contain(mplayer, world)
     camera.follow(mplayer);
     load_own_world(world, mplayer);
 

@@ -23,6 +23,7 @@
     "lodash": "^4.17.4",
     "mime": "^1.2.11",
     "moment": "^2.18.1",
+    "mongodb": "^2.2.33",
     "nunjucks": "^3.0.1",
     "request": "^2.74.0",
     "serve-favicon": "^2.4.3",

@@ -13,7 +13,9 @@
         </div>
       </div>
       <div class="footer">
-          <div class="count" >在线人数：{{online_count}}人</div>  
+        <div>坐标:{{`(${cur_x}, ${cur_y})`}}</div>  
+        <div v-if="info" class="debug">info:{{info}}</div>  
+        <div class="count" >在线人数：{{online_count}}人</div>  
       </div>
     </game>
 
@@ -34,6 +36,9 @@ export default {
     return {
       online_count: 0,
       show_head_panel: false,
+      cur_x:0,
+      cur_y:0,
+      info:'',
       wi: {
         openid: "",
         nickname: "",
@@ -54,6 +59,13 @@ export default {
     }
   },
   created: function() {
+    this.$root.$on("debug_info", data => {
+      this.info = data;
+    });
+    this.$root.$on("player_coordinate", data => {
+      this.cur_x = parseFloat(data.x).toFixed(2);
+      this.cur_y = parseFloat(data.y).toFixed(2);
+    });
     this.$root.$on("show_header", data => {
       // alert(data + '——in game component');
       window.target_player = data;
@@ -64,8 +76,8 @@ export default {
     });
   },
   methods: {
-    clear_target(){
-      this.show_head_panel=false
+    clear_target() {
+      this.show_head_panel = false;
       window.target_player = null;
     },
     show_profile() {
@@ -100,14 +112,19 @@ export default {
     this.app.on({ page: "game", preventClose: false, content: null }, this);
     var canvas = document.querySelector("#game_main .content canvas");
     this.reg_canvas = new RegCanvas(canvas, dealer);
+    var rect = canvas.parentNode.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
   }
 };
 </script>
 <style scoped>
 .footer {
   bottom: 0px;
+  color: white;
 }
 .count {
+  color: blue;
   margin-left: auto;
 }
 .footer,

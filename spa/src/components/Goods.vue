@@ -15,8 +15,9 @@
         <img id='new_img' :src="new_img"/>
         <input type="file" @change="processFile($event)">
         <div class="input-wrapper">
-            <input class="with-label" type="number" id="price"  v-model="new_price">
-            <label class="floating-label" for="price">售价（元）</label>
+            <div class="caption">售价:</div>
+            <input type="number" v-model="new_price">
+            <div class="caption">（元）</div>
         </div>
         <button class="btn fit-parent" v-on:touchend="open_img()" >添加图片</button>
         <button class="btn fit-parent primary" v-on:touchend="addGoods()" >添加商品</button>
@@ -29,8 +30,9 @@
             <textarea v-model="g.comments" placeholder="商品描述"></textarea>
             <img :src="g.img"/>
             <div class="input-wrapper">
-                <input class="with-label" type="number" id="price"  v-model="g.price">
-                <label class="floating-label" for="price">售价（元）</label>
+                <div>售价:</div>
+                <input type="number" v-model="g.price">
+                <div>（元）</div>
             </div>
             <button class="btn fit-parent primary" v-on:touchend="saveGoods(g)" >保存</button>
             <button class="btn fit-parent negative" v-on:touchend="delete_item(g)" >删除</button>
@@ -163,6 +165,15 @@ export default {
 img {
   max-width: 100%;
   max-height: 30%;
+}
+.prompt, .caption {
+  width: 35%;
+  margin: auto;
+  /* font-size: 2em; */
+}
+.input-wrapper {
+  display: flex;
+  flex-direction: row;
 }
 input[type="file"] {
   display: none;

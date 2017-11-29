@@ -639,17 +639,19 @@ GA.plugins = function (ga) {
           this.y = sprite.y + sprite.height - (this.height / 4 * 3);
         }
         //If the camera reaches the edge of the map, stop it from moving
-        if (this.x < world.origin.x) {
-          this.x = world.origin.x;
+        var left_limit = world.origin ? world.origin.x : 0;
+        var top_limit = world.origin ? world.origin.y : 0;
+        if (this.x < left_limit) {
+          this.x = left_limit;
         }
-        if (this.y < world.origin.y) {
-          this.y = world.origin.y;
+        if (this.y < top_limit) {
+          this.y = top_limit;
         }
-        if (this.x + this.width > world.origin.x + world.width) {
-          this.x = world.origin.x + world.width - this.width;
+        if (this.x + this.width > left_limit + world.width) {
+          this.x = left_limit + world.width - this.width;
         }
-        if (this.y + this.height > world.y + world.height) {
-          this.y = world.origin.y + world.height - this.height;
+        if (this.y + this.height > top_limit + world.height) {
+          this.y = top_limit + world.height - this.height;
         }
       },
       centerOver: function (sprite) {

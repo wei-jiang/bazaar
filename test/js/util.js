@@ -29,7 +29,7 @@ function load_own_world(world, player){
         y:map_y
     }
     let adjacent_sw_array = cur_worlds(map_x, map_y);
-    console.log(adjacent_sw_array);
+    // console.log(adjacent_sw_array);
     let loaded_map = world.loaded_world_map;
     let small_worlds = adjacent_sw_array.map( coor =>{
         let map_x = coor[0], map_y = coor[1];
@@ -41,23 +41,29 @@ function load_own_world(world, player){
             if(world.candidate.length > 0){
                 let sel_index = g.randomInt(0, world.candidate.length -1);
                 let thisMap = world.candidate[sel_index].clone()
-                
+                thisMap.map_x = map_x;
+                thisMap.map_y = map_y;
                 world.addChild(thisMap)
                 thisMap.setPosition(map_x*world_width, map_y*world_height);
-                // thisMap.putCenter( g.text(`(map_x:${map_x}, map_y${map_y})`) )
                 // console.log(thisMap.x, thisMap.y, thisMap.layer);
                 loaded_map[map_x][map_y] = thisMap;                
             }
         }
         return loaded_map[map_x][map_y];
     })
-    if(player.parent != world){
-        console.log('add player to world')
-        player.layer = 9;
-        world.add(player)
-    }
+    player.layer = 9;
     console.log('world.children.length:' + world.children.length);
     console.log('world.width:' + world.width + '; world.height:' + world.height);
     console.log('world.x:' + world.x + '; world.y:' + world.y);
+    if(world.children.length > 10){
+        world.children.forEach( m =>{
+            if( Math.abs( Math.abs(m.x) - Math.abs(player.x) ) > 512 
+                && Math.abs( Math.abs(m.y) - Math.abs(player.y) ) > 512) {
+                loaded_map[m.map_x][m.map_y] = null;
+                g.remove(m);
+            }
+        })
+    }
+    console.log('after clean world.children.length=' + world.children.length);
     return world;
 }

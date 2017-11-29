@@ -5,26 +5,36 @@ import _ from 'lodash'
 import net from '../net'
 let g;
 var world, mplayer, faceTo, camera;
-
+const world_size = 65536;
+const world_center = world_size/2;
 class Game {  
   players = [];
   constructor() {
-    g = ga(512, 896, this.setup.bind(this),
+    g = ga(512, 512, this.setup.bind(this),
       [
         "res/imgs.json",
-        "res/ornament.png",
-        "res/walkcycle.png",
-        "res/bazaar.json"
+        "res/walkcycle.png"
       ]
     );
     g.fps = 30;    
   }
-
+  init_world(){
+    let small_world = {
+        clone: () => {
+            return g.sprite("gnd.png")
+        }
+    }
+    this.world = g.staticGroup();
+    const world_size = 65536;
+    this.world.world_center = world_size /2;
+    this.world.width = world_size;
+    this.world.height = world_size;
+    this.world.loaded_world_map = {};
+    this.world.candidate = [];
+    this.world.candidate.push(small_world);
+  }
   setup() {
-    this.world = g.makeTiledWorld(
-      "res/bazaar.json",
-      "res/ornament.png"
-    );
+    this.init_world();
     this.canvas = g.canvas;
     this.mplayer = this.new_player(wi, true)
     g.state = this.play.bind(this);

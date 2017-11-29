@@ -19,7 +19,19 @@ const moment = require('moment');
 var SPPay = require('sp-pay');
 var _ = require('lodash');
 var md5 = require('md5');
+let mongo = require('mongodb'),
+MongoClient = mongo.MongoClient,
+ObjectId = mongo.ObjectID,
+Binary = mongo.Binary,
+g_db,
+m_url = 'mongodb://freego:freego2016@cninone.com:27017/freego';
 
+MongoClient.connect(url)
+.then( db => {
+    g_db = db;
+    console.log('connect to mongodb success')
+ } )
+.catch( err=>console.log('connect to mongodb failed', err))
 app.set('port', process.env.PORT || 7900);
 
 nunjucks.configure('views', {

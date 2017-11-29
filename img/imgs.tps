@@ -84,7 +84,7 @@
         <key>atfFormats</key>
         <string></string>
         <key>textureFormat</key>
-        <enum type="SettingsBase::TextureFormat">png</enum>
+        <enum type="SettingsBase::TextureFormat">png8</enum>
         <key>borderPadding</key>
         <uint>0</uint>
         <key>maxTextureSize</key>
@@ -160,7 +160,7 @@
         <key>outputFormat</key>
         <enum type="SettingsBase::OutputFormat">RGBA8888</enum>
         <key>alphaHandling</key>
-        <enum type="SettingsBase::AlphaHandling">ClearTransparentPixels</enum>
+        <enum type="SettingsBase::AlphaHandling">KeepTransparentPixels</enum>
         <key>contentProtection</key>
         <struct type="ContentProtection">
             <key>key</key>
@@ -199,6 +199,19 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">gnd.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>128,128,256,256</rect>
+                <key>scale9Paddings</key>
+                <rect>128,128,256,256</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">green.png</key>
             <key type="filename">pink.png</key>
             <key type="filename">sell.png</key>
@@ -224,6 +237,7 @@
             <filename>yellow.png</filename>
             <filename>green.png</filename>
             <filename>pink.png</filename>
+            <filename>gnd.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

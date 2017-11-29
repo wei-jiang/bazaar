@@ -1133,6 +1133,60 @@ GA.create = function(width, height, setup, assetsToLoad, load) {
 
         //Some temporary private variables to help track the new
         //calculated width and height
+        o._newWidth = 0;
+        o._newHeight = 0;
+
+        //Find the width and height of the child sprites furthest
+        //from the top left corner of the group
+        o.children.forEach(function(child) {
+
+          //Find child sprites that combined x value and width
+          //that's greater than the current value of `_newWidth`
+          if (child.x + child.width > o._newWidth) {
+
+            //The new width is a combination of the child's
+            //x position and its width
+            o._newWidth = child.x + child.width;
+          }
+          if (child.y + child.height > o._newHeight) {
+            o._newHeight = child.y + child.height;
+          }
+        });
+
+        //Apply the `_newWidth` and `_newHeight` to this sprite's width
+        //and height
+        o.width = o._newWidth;
+        o.height = o._newHeight;
+      }
+    };
+
+    //Add the group to the `stage`
+    ga.stage.addChild(o);
+
+    //Group any sprites that were passed to the group's arguments
+    //(Important!: This bit of code needs to happen after adding the group to the stage)
+    if (spritesToGroup) {
+      var sprites = Array.prototype.slice.call(arguments);
+      sprites.forEach(function(sprite) {
+        o.addChild(sprite);
+      });
+    }
+
+    //Return the group
+    return o;
+  };
+  //some problem need to fix ...
+  ga.spreadGroup = function(spritesToGroup) {
+    var o = {};
+    //Make the group a display object.
+    makeDisplayObject(o);
+    o.calculateSize = function() {
+      //Calculate the width based on the size of the largest child
+      //that this sprite contains
+      if (o.children.length > 0) {
+
+        //Some temporary private variables to help track the new
+        //calculated width and height
         let left = 0, top = 0, right = 0, bottom = 0;
        
         //Find the width and height of the child sprites furthest
@@ -1153,12 +1207,12 @@ GA.create = function(width, height, setup, assetsToLoad, load) {
           }
         });
         
-        o.setPosition(left, top);
+        o.setPosition(left + o.x, top + o.y);
         o.width = right - left;
         o.height = bottom - top;
         o.origin = {
-          x:left,
-          y:top,
+          x: o.x,
+          y: o.y,
           width:o.width,
           height:o.height
         }
@@ -1180,7 +1234,23 @@ GA.create = function(width, height, setup, assetsToLoad, load) {
     //Return the group
     return o;
   };
-
+  ga.staticGroup = function(spritesToGroup) {
+    var o = {};
+    //Make the group a display object.
+    makeDisplayObject(o);
+    //Add the group to the `stage`
+    ga.stage.addChild(o);
+    //Group any sprites that were passed to the group's arguments
+    //(Important!: This bit of code needs to happen after adding the group to the stage)
+    if (spritesToGroup) {
+      var sprites = Array.prototype.slice.call(arguments);
+      sprites.forEach(function(sprite) {
+        o.addChild(sprite);
+      });
+    }
+    //Return the group
+    return o;
+  };
   //### rectangle
   //`rectangle` creates and returns a basic rectangular shape.
   //arguments: width, height, fillColor, borderColor, widthOfBorder,

@@ -16,7 +16,10 @@
             <p>{{g.comments}}</p>
             <img :src="g.img"/>
             <div><h3>售价：{{g.price}}（元）</h3></div>
-            <div>购买数量：<input type="number" v-model="g.count"></div>
+            <div class="input-wrapper">
+                <div>购买数量：</div>
+                <input type="number" v-model="g.count">
+            </div>
           </div>
         </li>
       </ul>
@@ -88,13 +91,13 @@ export default {
         dataType: "json"
       })
         .done(function(data) {
-          alert("success:" + JSON.stringify(data));
+          // alert("success:" + JSON.stringify(data));
           WeixinJSBridge.invoke("getBrandWCPayRequest", data, function(res) {
             if (res.err_msg == "get_brand_wcpay_request:ok") {
               // 此处可以使用此方式判断前端返回,微信团队郑重提示：res.err_msg 将在用户支付成功后返回ok，但并不保证它绝对可靠，。
-              alert("支付成功");
+              phonon.alert('付款成功，请留意系统消息', '支付成功')
             } else {
-              alert("failed...");
+              phonon.alert('用户取消支付', '购买失败')
             }
           });
         })
@@ -109,6 +112,15 @@ export default {
 img {
   max-width: 100%;
   max-height: 30%;
+}
+.prompt, .caption {
+  width: 40%;
+  margin: auto;
+  /* font-size: 2em; */
+}
+.input-wrapper {
+  display: flex;
+  flex-direction: row;
 }
 input[type="file"] {
   display: none;

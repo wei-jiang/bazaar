@@ -8,7 +8,7 @@ import './net';
 Vue.config.ignoredElements = [
   'game', 'help', 'gestures', 
   'design', 'product', 'chat', 
-  'notification', 'goods', 'chat',
+  'notification', 'goods', 'buy',
   'profile'
 ]
 
@@ -36,19 +36,5 @@ window.vm = new Vue({
   template: '<App/>',
   components: { App }
 })
-
-window.onload = window.onresize = function fit_canvas() {           
-  var canvas = document.querySelector('.content canvas');     
-  var rect = canvas.parentNode.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-  /////////////////////////
-  // var ctx = canvas.getContext("2d");
-  // ctx.strokeStyle="green";
-  // ctx.beginPath();
-  // ctx.arc(100,100,50,0,2*Math.PI);
-  // ctx.stroke();
-  ///////////////////////////        
-};
 
 game.init();

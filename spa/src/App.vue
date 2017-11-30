@@ -8,6 +8,9 @@
     <buy :app="app"></buy>    
     <chat :app="app"></chat>  
     <profile :app="app"></profile>  
+    <noty :app="app"></noty>  
+    <order :app="app"></order>  
+    
   </div>
 </template>
 
@@ -20,6 +23,8 @@ import Goods from './components/Goods.vue'
 import Chat from './components/Chat.vue'
 import Profile from './components/Profile.vue'
 import Buy from './components/Buy.vue'
+import Noty from './components/Noty.vue'
+import Order from './components/Order.vue'
 
 export default {
   name: 'app',
@@ -54,7 +59,9 @@ export default {
     Goods,
     Buy,
     Chat,
-    Profile
+    Profile,
+    Noty,
+    Order
   }
 }
 </script>

@@ -52,21 +52,20 @@ function load_own_world(g, world, player){
             }
         }
         return loaded_map[map_x][map_y];
-    })
-    player.setLayer(9);
-    console.log('world.children.length:' + world.children.length);
-    console.log('world.width:' + world.width + '; world.height:' + world.height);
-    console.log('world.x:' + world.x + '; world.y:' + world.y);
-    if(world.children.length > 30){
-        world.children.forEach( m =>{
-            if( Math.abs( Math.abs(m.x) - Math.abs(player.x) ) > 512 
-                && Math.abs( Math.abs(m.y) - Math.abs(player.y) ) > 512) {
-                loaded_map[m.map_x][m.map_y] = null;
-                g.remove(m);
-            }
-        })
-        console.log('after clean world.children.length=' + world.children.length);
-    }
+    })    
+    // console.log('world.children.length:' + world.children.length);
+    // console.log('world.width:' + world.width + '; world.height:' + world.height);
+    // console.log('world.x:' + world.x + '; world.y:' + world.y);
+    // if(world.children.length > 30){
+    //     world.children.forEach( m =>{
+    //         if( Math.abs( Math.abs(m.x) - Math.abs(player.x) ) > 4096 
+    //             && Math.abs( Math.abs(m.y) - Math.abs(player.y) ) > 4096) {
+    //             loaded_map[m.map_x][m.map_y] = null;
+    //             g.remove(m);
+    //         }
+    //     })
+    //     console.log('after clean world.children.length=' + world.children.length);
+    // }
     
     return world;
 }
@@ -92,10 +91,6 @@ class Player {
     if (is_main_player) {
       this.camera = g.worldCamera(world, g.canvas);
       this.camera.centerOver(this.player);
-      window.onload = window.onresize = ()=> {
-        this.camera.width = g.canvas.width = window.innerWidth;
-        this.camera.height = g.canvas.height = window.innerHeight;
-      };
       load_own_world(g, world, this.player);
     }
     this.player.collisionArea = { x: 22, y: 44, width: 20, height: 20 };
@@ -173,6 +168,8 @@ class Player {
   }
 
   update() {
+    //for dynamiclly load terrain reorder
+    this.player.setLayer(9);
     this.player.putTop(this.title);
     this.title.putTop(this.sign);
     this.animate()

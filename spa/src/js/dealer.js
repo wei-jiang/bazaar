@@ -15,6 +15,10 @@ export default {
     },
     "购买": function (result, points) {
         //b
+        if(!target_player){
+            phonon.alert('未选择购买目标', '请先选择玩家')
+            return;
+        }
         if(!target_player.seller){
             phonon.alert('对方不是卖家', '无商品可买')
         } else {            
@@ -27,12 +31,13 @@ export default {
     },
     "订单": function (result, points) {
         //o
-        phonon.notif("订单 功能开发中…… ", 3000)
+        phonon.navigator().changePage('order', '');
+        // for test
         // net.emit('test', "net.emit data")
     },
     "通知": function (result, points) {
         //n
-        alert("通知 界面开发中……")
+        phonon.navigator().changePage('noty', '');
     },
     "手势": function (result, points) {
         //g

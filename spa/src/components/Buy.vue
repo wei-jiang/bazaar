@@ -17,8 +17,8 @@
             <img :src="g.img"/>
             <div><h3>售价：{{g.price}}（元）</h3></div>
             <div class="input-wrapper">
-                <div>购买数量：</div>
-                <input type="number" v-model="g.count">
+                <div class="caption">购买数量：</div>
+                <input type="number" v-model="g.count" onclick="this.select()">
             </div>
           </div>
         </li>
@@ -73,7 +73,7 @@ export default {
         this.goods,
         (bi, g) => {
           bi.total += parseFloat(g.count).toFixed(2) * parseFloat(g.price).toFixed(2);
-          bi.title += ' ' + g.title
+          bi.title += ` ${g.title}(${g.count})`
           return bi;
         },
         {
@@ -81,7 +81,14 @@ export default {
           title:''
         }
       );
+      if(buy_info.total <= 0){
+        return phonon.alert('所选商品总价必须大于0', '请选择商品数量')
+      }
       buy_info.openid = wi.openid
+      buy_info.buyer_id = wi.openid;
+      buy_info.buyer_nickname = wi.nickname;
+      buy_info.seller_id = this.seller.openid;
+      buy_info.seller_nickname = this.seller.nickname;
       $.ajax({
         type: "POST",
         url: "buy_product",
@@ -92,6 +99,7 @@ export default {
       })
         .done(function(data) {
           // alert("success:" + JSON.stringify(data));
+          if(data.ret && data.ret == -1) return alert("下单失败");
           WeixinJSBridge.invoke("getBrandWCPayRequest", data, function(res) {
             if (res.err_msg == "get_brand_wcpay_request:ok") {
               // 此处可以使用此方式判断前端返回,微信团队郑重提示：res.err_msg 将在用户支付成功后返回ok，但并不保证它绝对可靠，。
@@ -102,7 +110,7 @@ export default {
           });
         })
         .fail(function(err) {
-          alert("failed" + JSON.stringify(err));
+          alert("下单失败：" + JSON.stringify(err));
         });
     }
   }
@@ -114,8 +122,9 @@ img {
   max-height: 30%;
 }
 .prompt, .caption {
-  width: 40%;
-  margin: auto;
+  display:inline-block;
+  /* width: 40%;
+  margin: auto; */
   /* font-size: 2em; */
 }
 .input-wrapper {

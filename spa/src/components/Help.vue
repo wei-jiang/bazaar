@@ -36,8 +36,8 @@
         <button class="btn fit-parent padded-bottom" data-navigation="gestures">手势设置</button>
         <button class="btn fit-parent padded-bottom" data-navigation="chat">聊天记录</button>
         <button class="btn fit-parent padded-bottom" data-navigation="goods">商品管理</button>
-        <button class="btn fit-parent padded-bottom" data-navigation="orders">订单查询</button>
-        <button class="btn fit-parent padded-bottom" data-navigation="notification">系统通知</button>
+        <button class="btn fit-parent padded-bottom" data-navigation="order">订单查询</button>
+        <button class="btn fit-parent padded-bottom" data-navigation="noty">系统通知</button>
       </div>
     </div>
   </help>

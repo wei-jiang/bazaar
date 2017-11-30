@@ -19,19 +19,21 @@ const moment = require('moment');
 var SPPay = require('sp-pay');
 var _ = require('lodash');
 var md5 = require('md5');
+const uuidv1 = require('uuid/v1');
+const uuidv4 = require('uuid/v4');
 let mongo = require('mongodb'),
-MongoClient = mongo.MongoClient,
-ObjectId = mongo.ObjectID,
-Binary = mongo.Binary,
-g_db,
-m_url = 'mongodb://freego:freego2016@cninone.com:27017/freego';
+    MongoClient = mongo.MongoClient,
+    ObjectId = mongo.ObjectID,
+    Binary = mongo.Binary,
+    g_db,
+    m_url = 'mongodb://freego:freego2016@cninone.com:27017/wxgames';
 
-MongoClient.connect(url)
-.then( db => {
-    g_db = db;
-    console.log('connect to mongodb success')
- } )
-.catch( err=>console.log('connect to mongodb failed', err))
+MongoClient.connect(m_url)
+    .then(db => {
+        g_db = db;
+        console.log('connect to mongodb success')
+    })
+    .catch(err => console.log('connect to mongodb failed', err))
 app.set('port', process.env.PORT || 7900);
 
 nunjucks.configure('views', {
@@ -78,7 +80,7 @@ var sp_pay = new SPPay({
     mch_id: "102580087392",
     partner_key: "324a076a3f4ea0d6be16893ffef53a16"
 });
-let uuid2sock = {}
+let uuid2sock = {}, pending_order_map = {};
 
 get_myurl_by_req = (req) => {
     //depend on nginx config
@@ -116,15 +118,16 @@ function get_req_ip(req) {
 app.post('/notify', (req, res) => {
     var resp = req.body.xml;
     console.log("swiftpass callback...");
-    console.log(resp);
+    // console.log(resp);
     if (resp.result_code[0] == "0") {
         var order_id = Array.isArray(resp.out_trade_no) ? resp.out_trade_no[0] : resp.out_trade_no;
-        // var cli_dealer = pending_order_map[order_id];
-        // if (cli_dealer) {
-        //     cli_dealer.notify_pay_success(resp);
-        // }
-    }
-    else {
+        var cli_dealer = pending_order_map[order_id];
+        if (cli_dealer) {
+            cli_dealer.notify_pay_success(resp);
+        } else {
+            console.log(`can not find ${order_id} dealer`, pending_order_map);
+        }
+    } else {
         console.log(resp.err_msg);
     }
     res.end('success');
@@ -139,9 +142,9 @@ app.post('/save_gestures', (req, res) => {
 
 app.post('/buy_product', function (req, res) {
     if (!req.body) return res.sendStatus(400);
-    var data = req.body;
+    let data = req.body;
     console.log(data)
-    let order_id = new moment().format("YYYYMMDDHHmmssSSS");
+    let order_id = data.openid.substring(0, 4) + new moment().format("YYYYMMDDHHmmssSSS");//uuidv1(); too long
     let order_info = {
         notify_url: get_myurl_by_req(req) + '/notify',
         mch_id: '102580087392',
@@ -152,16 +155,14 @@ app.post('/buy_product', function (req, res) {
         mch_create_ip: get_req_ip(req)
     };
     sp_pay.get_wx_jspay_para(order_info, function (err, result) {
-        console.log(err, result);
+        // console.log(err, result);
         if (result && result.result_code == '0') {
             // let url = `https://pay.swiftpass.cn/pay/jspay?token_id=${result.token_id}&showwxtitle=1`;
             let pi = JSON.parse(result.pay_info);
             delete pi.status;
             delete pi.callback_url;
-            // delete pi.paySign;
-            // pi.appId = 'wxa71182a49ab08050';
-            // pi.paySign = sign_jsapi_pay_data(pi);
-            console.log(pi);
+            cache_order(order_id, data);
+            // console.log(pi);
             res.json(pi);
         } else {
             res.json({
@@ -178,6 +179,11 @@ app.get('/', function (req, res) {
 
 
 app.get('/bazaar', function (req, res) {
+    let ua = req.headers['user-agent'];
+    let is_wx_agent = /MicroMessenger/i.test(ua);
+    if (!is_wx_agent) {
+        return res.redirect('http://www.baidu.com');
+    }
     var openid = req.query.openid;
     if (!openid) {
         const qs = querystring.stringify({
@@ -250,6 +256,41 @@ io.on('connection', function (socket) {
         delete data.target_oid;
         target_sock && target_sock.emit('speak_to_target', data);
     });
+    socket.on('change_order_status', function (data) {
+        // console.log('change_order_status', data)
+        g_db.collection('bazaar_orders').findOneAndUpdate(
+            {
+                oid: data.oid
+            },
+            {
+                "$set": {
+                    "status": data.to_status
+                }
+            }
+        )
+        .then( r=>{
+            let order = r.value;
+            // console.log(order)
+            let noty = `买家:${order.buyer_nickname}，购买的商品（${order.title}），总价：${order.total}元。${data.to_status}`;
+            let sock = uuid2sock[order.buyer_id];
+            if (sock) {
+                sock.emit('system_notification', noty);
+            }
+            sock = uuid2sock[order.seller_id];
+            if (sock) {
+                sock.emit('system_notification', noty);
+            }
+        })
+    });
+    socket.on('get_orders', function (openid, cb) {
+        g_db.collection('bazaar_orders')
+        .find({ $or: [ { buyer_id: openid }, { seller_id: openid } ] })
+        .toArray()
+        .then(orders=>{
+            // console.log(orders)
+            cb(orders)
+        })
+    });
     socket.on('ferret', function (name, fn) {
         fn('woot');
         socket.emit('ww', 'pp', function (data) {
@@ -272,3 +313,39 @@ function sign_jsapi_pay_data(param) {
     // console.log(querystring);
     return md5(querystring).toUpperCase();
 }
+
+function cache_order(oid, info) {
+    pending_order_map[oid] = {
+        start_point: new Date(),
+        notify_pay_success: () => {
+            info.oid = oid;
+            info.status = '已付款';
+            info.dt = moment().format("YYYY-MM-DD HH:mm:ss");
+            g_db.collection('bazaar_orders').insert(info)
+                .then(() => {
+                    let noty = `买家:${info.buyer_nickname}，购买(${info.seller_nickname})的商品:${info.title}，总价：${info.total}元。已付款`;
+                    let sock = uuid2sock[info.buyer_id];
+                    if (sock) {
+                        sock.emit('system_notification', noty);
+                    }
+                    sock = uuid2sock[info.seller_id];
+                    if (sock) {
+                        sock.emit('system_notification', noty);
+                    }
+                })
+            delete pending_order_map[oid];
+            console.log(`${oid} pay success!!!`);
+        }
+    }
+}
+setInterval(() => {
+    //can not use _.filter, cause not a array
+    _.each(pending_order_map, (o, key) => {
+        let n = new Date();
+        let ts = n.getTime() - o.start_point.getTime()
+        //half hour
+        if (ts > 30 * 60 * 1000) {
+            delete pending_order_map[key];
+        }
+    })
+}, 10 * 1000);

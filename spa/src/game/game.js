@@ -37,6 +37,12 @@ class Game {
     this.init_world();
     this.canvas = g.canvas;
     this.mplayer = this.new_player(wi, true)
+    let resize_canvas = ()=>{
+      this.mplayer.camera.width = g.canvas.width = window.innerWidth;
+      this.mplayer.camera.height = g.canvas.height = window.innerHeight;
+    }
+    resize_canvas();
+    window.onresize = resize_canvas;
     g.state = this.play.bind(this);
     net.post_online(this.mplayer)
   }

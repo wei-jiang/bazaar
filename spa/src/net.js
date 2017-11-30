@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import game from './game/game';
 import adb from "./db";
+const moment = require('moment');
+
 var wwwRoot = window.location.href;
 if (wwwRoot.substr(wwwRoot.lenght - 1, 1) != "/") {
   wwwRoot = wwwRoot.substr(0, wwwRoot.lastIndexOf("/"));
@@ -18,12 +20,25 @@ class Net {
       this.sock.on('speak_to_target', this.on_recieve_chat.bind(this));
       this.sock.on('notify_seller_status', this.on_notify_seller_status.bind(this));
       this.sock.on('get_target_goods', this.on_get_target_goods.bind(this));
+      this.sock.on('system_notification', this.on_system_notification.bind(this));
     }
   }
   register_ui_evt() {
     vm.$on("notify_seller_status", data => {
       this.emit('notify_seller_status', data)
     });
+  }
+  on_system_notification(data) {
+    //insert into local db
+    adb.then(db => {      
+      db.notification.insert({
+        dt:moment().format("YYYY-MM-DD HH:mm:ss"),
+        content:data
+      });
+      phonon.notif(data, 3000)
+      vm.$emit('refresh_sys_noty', '');
+      vm.$emit('refresh_order_status', '');
+    })    
   }
   on_notify_seller_status(data) {
     let t = game.get_player_by_id(data.openid)
@@ -39,6 +54,11 @@ class Net {
   }
   on_connect() {
 
+  }
+  get_orders(openid, cb) {
+    this.emit('get_orders', openid, orders => {
+      cb(orders)
+    });
   }
   post_online(mplayer) {
     adb.then(db => {

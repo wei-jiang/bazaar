@@ -8,8 +8,8 @@ import './net';
 Vue.config.ignoredElements = [
   'game', 'help', 'gestures', 
   'design', 'product', 'chat', 
-  'notification', 'goods', 'buy',
-  'profile'
+  'noty', 'goods', 'buy',
+  'profile', 'order'
 ]
 
 require('phonon/dist/css/phonon.min.css')

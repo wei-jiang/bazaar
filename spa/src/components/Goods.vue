@@ -15,9 +15,9 @@
         <img id='new_img' :src="new_img"/>
         <input type="file" @change="processFile($event)">
         <div class="input-wrapper">
-            <div class="caption">售价:</div>
+            <div >售价:</div>
             <input type="number" v-model="new_price">
-            <div class="caption">（元）</div>
+            <div>（元）</div>
         </div>
         <button class="btn fit-parent" v-on:touchend="open_img()" >添加图片</button>
         <button class="btn fit-parent primary" v-on:touchend="addGoods()" >添加商品</button>
@@ -31,7 +31,7 @@
             <img :src="g.img"/>
             <div class="input-wrapper">
                 <div>售价:</div>
-                <input type="number" v-model="g.price">
+                <input type="number" v-model="g.price" onclick="this.select()">
                 <div>（元）</div>
             </div>
             <button class="btn fit-parent primary" v-on:touchend="saveGoods(g)" >保存</button>
@@ -118,13 +118,22 @@ export default {
       reader.readAsDataURL(img_file);
     },
     addGoods() {
+      let img = $("#new_img")[0];
+      if(img.getAttribute('src') == ""){
+        phonon.alert('商品图片不能为空', '请填写商品信息')
+        return;
+      }
+      if( !this.new_title || !this.new_comments || this.new_price <= 0){
+        phonon.alert('商品 （名称、备注、价格） 不能为空', '请填写商品信息')
+        return;
+      }
       this.newItem = false;
       this.goods = this.goods.splice(0);
       let new_goods = {
         title: this.new_title,
         comments: this.new_comments,
         price: this.new_price,
-        img: this.resize2_img($("#new_img")[0])
+        img: this.resize2_img(img)
       };
       adb.then(db => {
         db.products.insert(new_goods);
@@ -140,6 +149,7 @@ export default {
           },
           obj => g
         );
+        phonon.alert('商品信息修改成功', '除了图片')
         this.onReady();
       });
     },
@@ -166,10 +176,8 @@ img {
   max-width: 100%;
   max-height: 30%;
 }
-.prompt, .caption {
-  width: 35%;
-  margin: auto;
-  /* font-size: 2em; */
+input[type="number"]{
+  flex:1;
 }
 .input-wrapper {
   display: flex;

@@ -219,6 +219,14 @@ io.on('connection', function (socket) {
         // console.log('online_players', data);
         fn(online_players);
     });
+    socket.on('stop_move', function (data) {
+        if (socket.player) {
+            socket.player.x = data.x;
+            socket.player.y = data.y;
+        }
+        // console.log('stop_move', data)
+        socket.broadcast.emit('stop_move', data);
+    });
     socket.on('player_move', function (data) {
         if (socket.player) {
             socket.player.x = data.x;

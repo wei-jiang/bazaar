@@ -16,6 +16,7 @@ class Net {
       this.sock.on('new_player_online', this.on_new_player_online.bind(this));
       this.sock.on('player_offline', this.on_player_offline.bind(this));
       this.sock.on('player_move', this.on_player_move.bind(this));
+      this.sock.on('stop_move', this.on_stop_move.bind(this));
       this.sock.on('speak_to_all', this.on_recieve_chat.bind(this));
       this.sock.on('speak_to_target', this.on_recieve_chat.bind(this));
       this.sock.on('notify_seller_status', this.on_notify_seller_status.bind(this));
@@ -102,6 +103,13 @@ class Net {
     if (t) {
       t.translate(p.x, p.y)
       t.move(p.dx, p.dy)
+    }
+  }
+  on_stop_move(p) {
+    let t = game.get_player_by_id(p.openid)
+    if (t) {
+      t.translate(p.x, p.y)
+      t.stop_move()
     }
   }
 }

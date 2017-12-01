@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import net from '../net'
 
 const world_width = 512;
 const world_height = 512;
@@ -127,9 +128,15 @@ class Player {
       y: this.player.y,
     }
   }
+  stop_move(){
+    this.player.vx = this.player.vy = 0;
+  }
   on_hit() {
     if(this.is_main_player){
-      this.player.vx = this.player.vy = 0;
+      this.stop_move()
+      let data = this.get_loc();
+      data.openid = this.wi.openid;
+      net.emit('stop_move', data )
     }
     window.vm.$emit('show_header', this.wi);
   }

@@ -29,7 +29,7 @@ let MyPlugin = {
     Vue.prototype.$isDev = options.dev;
   }
 }
-
+window.target_player = null;
 Vue.use(MyPlugin, { dev: false })
 window.vm = new Vue({
   el: '#app',

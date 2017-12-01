@@ -73,7 +73,9 @@ export default {
         this.goods,
         (bi, g) => {
           bi.total += parseFloat(g.count).toFixed(2) * parseFloat(g.price).toFixed(2);
-          bi.title += ` ${g.title}(${g.count})`
+          if(g.count > 0){
+            bi.title += ` ${g.title}(${g.count})`
+          }
           return bi;
         },
         {

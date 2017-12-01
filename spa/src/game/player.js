@@ -88,6 +88,7 @@ class Player {
       this.title.layer = layer -1
       this.sign.layer = layer -2
     }
+    this.is_main_player = is_main_player;
     if (is_main_player) {
       this.camera = g.worldCamera(world, g.canvas);
       this.camera.centerOver(this.player);
@@ -109,11 +110,11 @@ class Player {
     this.player.show(this.last_face2);
     this.player.fps = 18;
 
-    
+    this.seller = wi.seller;
     this.show_sign(wi.seller)
   }
   show_sign(flag) {
-
+    this.seller = flag
     if (flag) {
       this.sign.visible = true;
     } else {
@@ -127,6 +128,9 @@ class Player {
     }
   }
   on_hit() {
+    if(this.is_main_player){
+      this.player.vx = this.player.vy = 0;
+    }
     window.vm.$emit('show_header', this.wi);
   }
   test_hit(x, y) {

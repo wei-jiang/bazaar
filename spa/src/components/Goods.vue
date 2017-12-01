@@ -123,8 +123,9 @@ export default {
         phonon.alert('商品图片不能为空', '请填写商品信息')
         return;
       }
+      this.new_price = parseFloat(this.new_price).toFixed(2);
       if( !this.new_title || !this.new_comments || this.new_price <= 0){
-        phonon.alert('商品 （名称、备注、价格） 不能为空', '请填写商品信息')
+        phonon.alert('商品 （名称、备注） 不能为空；价格需大于0', '请填写商品信息')
         return;
       }
       this.newItem = false;

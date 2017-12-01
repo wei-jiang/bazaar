@@ -1,6 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
+import SimplePeer from 'simple-peer'
 import App from './App'
 import game from './game/game';
 import './db';

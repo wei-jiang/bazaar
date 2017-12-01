@@ -17,7 +17,7 @@
             <img :src="g.img"/>
             <div><h3>售价：{{g.price}}（元）</h3></div>
             <div class="input-wrapper">
-                <div class="caption">购买数量：</div>
+                <div>购买数量：</div>
                 <input type="number" v-model="g.count" onclick="this.select()">
             </div>
           </div>
@@ -86,6 +86,7 @@ export default {
       if(buy_info.total <= 0){
         return phonon.alert('所选商品总价必须大于0', '请选择商品数量')
       }
+      buy_info.total *= 100; //分 to 元
       buy_info.openid = wi.openid
       buy_info.buyer_id = wi.openid;
       buy_info.buyer_nickname = wi.nickname;
@@ -123,11 +124,8 @@ img {
   max-width: 100%;
   max-height: 30%;
 }
-.prompt, .caption {
-  display:inline-block;
-  /* width: 40%;
-  margin: auto; */
-  /* font-size: 2em; */
+input[type="number"]{
+  flex:1;
 }
 .input-wrapper {
   display: flex;

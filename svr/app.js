@@ -76,10 +76,7 @@ server.listen(app.get('port')
     , () => {
         console.log("Express server listening on port " + app.get('port'));
     });
-var sp_pay = new SPPay({
-    mch_id: "102580087392",
-    partner_key: "324a076a3f4ea0d6be16893ffef53a16"
-});
+
 let uuid2sock = {}, pending_order_map = {};
 
 get_myurl_by_req = (req) => {
@@ -139,21 +136,29 @@ app.post('/save_gestures', (req, res) => {
         res.end('ok');
     })
 });
-
+const mch_map = {
+    "102580087392":"324a076a3f4ea0d6be16893ffef53a16",
+    "102510091331":"743f4c152fadd357b729395bb1d2f634"
+}
 app.post('/buy_product', function (req, res) {
     if (!req.body) return res.sendStatus(400);
     let data = req.body;
     console.log(data)
+    const mch_id = '102580087392';
     let order_id = data.openid.substring(0, 4) + new moment().format("YYYYMMDDHHmmssSSS");//uuidv1(); too long
     let order_info = {
         notify_url: get_myurl_by_req(req) + '/notify',
-        mch_id: '102580087392',
+        mch_id: mch_id,
         body: data.title,
         out_trade_no: order_id,
         total_fee: data.total,
         sub_openid: data.openid,
         mch_create_ip: get_req_ip(req)
     };
+    let sp_pay = new SPPay({
+        mch_id: mch_id,
+        partner_key: mch_map[mch_id]
+    });
     sp_pay.get_wx_jspay_para(order_info, function (err, result) {
         // console.log(err, result);
         if (result && result.result_code == '0') {
@@ -196,7 +201,24 @@ app.get('/bazaar', function (req, res) {
         res.render('bazaar.html', req.query);
     }
 });
-
+app.get('/circle', function (req, res) {
+    let ua = req.headers['user-agent'];
+    let is_wx_agent = /MicroMessenger/i.test(ua);
+    if (!is_wx_agent) {
+        return res.redirect('http://www.baidu.com');
+    }
+    var openid = req.query.openid;
+    if (!openid) {
+        const qs = querystring.stringify({
+            rurl: 'http://wx.cninone.com/circle'
+        });
+        let r_url = `https://wx.ily365.cn/openid?${qs}`;
+        // console.log(r_url);
+        res.redirect(r_url);
+    } else {
+        res.render('circle.html', req.query);
+    }
+});
 var get_sock_remote_ip = function (sock) {
     var rip = sock.handshake.headers['x-forwarded-for'];
     //console.log(rip);

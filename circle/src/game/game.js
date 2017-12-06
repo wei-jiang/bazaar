@@ -9,16 +9,25 @@ class Game {
   constructor() {
     this.fps = 30;
     this.map = new BMap.Map("allmap");    // 创建Map实例
-    let start_point = new BMap.Point(112.745415, 27.23847)
+    //here? 112.745415, 27.23847
+    let start_point = new BMap.Point(this.getRandFloat(112.745, 112.746), this.getRandFloat(27.238, 27.239) )
     this.map.centerAndZoom(start_point, 19);  // 初始化地图,设置中心点坐标和地图级别
-
-    let mp = this.new_player(wi, start_point);
-    this.map.addOverlay(mp);
+    _.assign(wi, {
+      x: start_point.lng,
+      y: start_point.lat
+    });
+    let mp = this.new_player( wi );    
     this.map.setCurrentCity("南岳");
     this.mplayer = mp
     this.cam = this.worldCamera();
     net.post_online(this.mplayer)
-    setInterval(() =>  this.update(), 1000 / this.fps);
+    setInterval(() => this.update(), 1000 / this.fps);
+  }
+  getRandFloat(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+  getRandInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   worldCamera() {
     return camera = {
@@ -29,7 +38,7 @@ class Game {
   };
   update() {
     this.cam.follow(this.mplayer)
-    _.each(this.players, p => p.update())
+    _.each(this.players, p => p.update.call(p))
   }
   player_infos() {
     return _.map(this.players, p => p.wi);
@@ -42,8 +51,8 @@ class Game {
     sel_p && sel_p.on_hit()
     return sel_p;
   }
-  new_player(wi, sp) {
-    let p = new Player( wi, sp)
+  new_player(wi) {
+    let p = new Player(this.map, wi)
     this.players.push(p)
     return p;
   }

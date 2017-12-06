@@ -14,11 +14,11 @@
         <li v-for="c in chat_log">
           <div class="padded-list" >
             <div>
-              <img :src="headimgurl(c.headimgurl)"/><div class='caption'>{{c.dt}}&nbsp{{c.from}}对<i class="target">{{c.to}}</i>说：</div>
+              <img class='headImg' :src="headimgurl(c.headimgurl)"/><div class='caption'>{{c.dt}}&nbsp{{c.from}}对<i class="target">{{c.to}}</i>说：</div>
             </div>
             <div>
               <div>{{c.content}}</div>
-              <img v-if="c.img" :src="c.img"/>
+              <img class='pic' v-if="c.img" :src="c.img"/>
             </div>
           </div>
         </li>
@@ -28,7 +28,7 @@
         <input v-model="content" placeholder="聊天内容">
         <input type="file" @change="processFile($event)">
         <i class="icon icon-add with-circle" v-on:touchend="open_img"></i>
-        <button class="btn primary" v-on:touchend="send">发送</button>
+        <button class="btn primary" v-on:touchend="send()">发送</button>
       </div>
     </div>
   </chat>
@@ -94,6 +94,7 @@ export default {
     },
     send(img) {
       if( !(this.content || img) ) return;
+
       adb.then(db => {
         let chat_info = {
           from: wi.nickname,
@@ -152,7 +153,11 @@ export default {
 };
 </script>
 <style scoped>
-.padded-list img {
+.pic{
+  width: 100%;
+  height: 30%;
+}
+.headImg {
   width: 50px;
   height: 50px;
 }
@@ -177,6 +182,7 @@ input[type="file"] {
 }
 .input-wrapper input {
   flex: 1;
+  min-height: 30px;
   border: 1px solid red;
 }
 .target {

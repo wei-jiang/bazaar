@@ -26,7 +26,7 @@ function load_gestures() {
             //         console.log(res);
             //     }
             // });
-            $.get("/static/default_gestures.txt", (data, status) => {
+            $.get("/bazaar/static/default_gestures.txt", (data, status) => {
                 if (status == 'success') {
                     recognizer.ParseInGestures(data)
                     db.gestures.insert({

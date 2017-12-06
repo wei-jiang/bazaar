@@ -2,6 +2,7 @@ import _ from 'lodash'
 import game from './game/game';
 import adb from "./db";
 const moment = require('moment');
+import Noty from 'noty';
 
 // var wwwRoot = window.location.href;
 // if (wwwRoot.substr(wwwRoot.lenght - 1, 1) != "/") {
@@ -31,15 +32,19 @@ class Net {
   }
   on_system_notification(data) {
     //insert into local db
-    adb.then(db => {      
+    adb.then(db => {
       db.notification.insert({
-        dt:moment().format("YYYY-MM-DD HH:mm:ss"),
-        content:data
+        dt: moment().format("YYYY-MM-DD HH:mm:ss"),
+        content: data
       });
-      phonon.notif(data, 3000)
+      new Noty({
+        layout: 'center',
+        timeout: 3000,
+        text: data
+      }).show();
       vm.$emit('refresh_sys_noty', '');
       vm.$emit('refresh_order_status', '');
-    })    
+    })
   }
   on_notify_seller_status(data) {
     let t = game.get_player_by_id(data.openid)
@@ -77,7 +82,14 @@ class Net {
     })
   }
   on_recieve_chat(data) {
-    phonon.notif(`${data.from}说:${data.content}`, 3000);
+    let hiu = /http/i.test(data.headimgurl)
+    ? data.headimgurl
+    : "res/hi0.jpg";
+    new Noty({
+      layout: 'center',
+      timeout: 3000,
+      text: `<div style="display:flex;"><img width=40 height=40 src="${hiu}"/><div>${data.from}说:${data.content}</div></div>`
+    }).show();
     adb.then(db => {
       db.chat_log.insert(data);
       vm.$emit('refresh_chat_log', '');

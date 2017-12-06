@@ -93,6 +93,8 @@ html, body,#allmap
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 99;
+  /* z-index: 99; */
+  /* for phonon dialog also need to set */
 }
+
 </style>

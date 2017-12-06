@@ -1,5 +1,7 @@
 import game from '../game/game';
 import net from '../net'
+import Noty from 'noty';
+
 export default {
     "帮助": function (result, points) {
         //h
@@ -73,5 +75,10 @@ export default {
     },
     touchend:function( ch ) {
         ch.clear()
+        // new Noty({
+        //     layout: 'center',
+        //     timeout: 3000,
+        //     text: `<div style="display:flex;"><img width=40 height=40 src="res/hi0.jpg"/><div>david说:Hello world!!!</div></div>`
+        //   }).show();
     }
 }

@@ -6,6 +6,8 @@ import App from './App'
 import game from './game/game';
 import './db';
 import './net';
+import 'noty/lib/noty.css'
+
 Vue.config.ignoredElements = [
   'game', 'help', 'gestures', 
   'design', 'product', 'chat', 

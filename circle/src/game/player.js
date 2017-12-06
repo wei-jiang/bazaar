@@ -4,12 +4,13 @@ import net from '../net'
 
 //position for lng/lat, point/pos for x/y in pixel
 class Player extends BMap.Overlay {
-  constructor(wi, position) {
+  constructor(map, wi) {
     super();
+    
     this.wi = wi;
     //in pixel
     this.vx = this.vy = 0;
-    this.position = position;
+    this.position = new BMap.Point(wi.x, wi.y);
     //can not use width/height for confliction
     this._width = 64;
     this._height = 64;
@@ -26,6 +27,8 @@ class Player extends BMap.Overlay {
     this.last_face2 = this.states.right;
     this.can_play_anim = true;
     this.fatigue_tm = null;
+    this.map = map;
+    this.map.addOverlay(this);
   }
   initialize(map) {
     // 创建div元素，作为自定义覆盖物的容器
@@ -152,7 +155,9 @@ class Player extends BMap.Overlay {
     this.animate();
     this.do_move()
     //main player
-    window.vm.$emit('player_coordinate', this.get_loc());
+    if( this.is_main_player() ){
+      window.vm.$emit('player_coordinate', this.get_loc());
+    }    
   }
   vanish() {
     this.map.removeOverlay(this)

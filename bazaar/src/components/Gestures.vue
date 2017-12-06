@@ -65,7 +65,7 @@ export default {
   },
   methods: {
     get_default_gestures() {
-      $.get("/static/default_gestures.txt", (data, status) => {
+      $.get("/bazaar/static/default_gestures.txt", (data, status) => {
         if (status == "success") {
           recognizer.Clear();
           recognizer.ParseInGestures(data);

@@ -1,5 +1,6 @@
 import recognizer from "./dollar";
 import adb from "../db";
+import Noty from 'noty';
 
 function round(n, d) // round 'n' to 'd' decimals
 {
@@ -26,7 +27,7 @@ function load_gestures() {
             //         console.log(res);
             //     }
             // });
-            $.get("/static/default_gestures.txt", (data, status) => {
+            $.get("/circle/static/default_gestures.txt", (data, status) => {
                 if (status == 'success') {
                     recognizer.ParseInGestures(data)
                     db.gestures.insert({
@@ -34,7 +35,11 @@ function load_gestures() {
                     })
                     console.log('load gestures from ajax')
                 } else {
-                    alert('获取默认手势失败:' + status)
+                    new Noty({
+                        layout: 'center',
+                        timeout: 3000,
+                        text: `获取默认手势失败:${status}`
+                    }).show();
                 }
             });
         }

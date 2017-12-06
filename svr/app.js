@@ -203,6 +203,7 @@ var get_sock_remote_ip = function (sock) {
     return rip;
 }
 io.on('connection', function (socket) {
+    console.log('connection');
     socket.on('player_online', function (data, fn) {
         socket.player = data;
         uuid2sock[data.openid] = socket;
@@ -216,7 +217,7 @@ io.on('connection', function (socket) {
             return s.player;
         });
         socket.broadcast.emit('new_player_online', data);
-        // console.log('online_players', data);
+        console.log('online_players', data);
         fn(online_players);
     });
     socket.on('stop_move', function (data) {

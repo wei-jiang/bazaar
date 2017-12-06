@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>自由集市</title>
+    <script src="/bazaar/static/libs/lokijs.min.js"></script>
+    <script src="/bazaar/static/libs/loki-indexed-adapter.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body style="background-color: transparent;">
+      <script type="text/javascript">
+          window.wi = {
+              openid: "{{openid}}",
+              nickname: "{{nickname}}",
+              sex: "{{sex}}",
+              language: "{{ language }}",
+              city: "{{ city }}",
+              province: "{{ province }}",
+              country: "{{ country }}",
+              headimgurl: "{{ headimgurl }}"
+          };
+      </script>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

@@ -1,46 +1,54 @@
-var fs = require('fs');
-var path = require('path');
-var app = require('express')();
+const fs = require('fs');
+const path = require('path');
+const app = require('express')();
 const nunjucks = require('nunjucks');
-var helmet = require('helmet');
-var cors = require('cors');
-var session = require('express-session');
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-var bodyParser = require('body-parser');
+const helmet = require('helmet');
+const cors = require('cors');
+const session = require('express-session');
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-var xmlparser = require('express-xml-bodyparser');
-var request = require('request');
+const xmlparser = require('express-xml-bodyparser');
+const request = require('request');
 const querystring = require('querystring');
-var jsSHA = require('jssha');
-var xml = require('xml');
+const jsSHA = require('jssha');
+const xml = require('xml');
 const favicon = require('serve-favicon');
 const moment = require('moment');
-var SPPay = require('sp-pay');
-var _ = require('lodash');
-var md5 = require('md5');
+const SPPay = require('sp-pay');
+const _ = require('lodash');
+const md5 = require('md5');
 const uuidv1 = require('uuid/v1');
 const uuidv4 = require('uuid/v4');
+const credential = require('./secret')
+const mch_map = credential.mch_map;
 let mongo = require('mongodb'),
     MongoClient = mongo.MongoClient,
     ObjectId = mongo.ObjectID,
     Binary = mongo.Binary,
-    g_db,
-    m_url = 'mongodb://freego:freego2016@cninone.com:27017/wxgames';
+    g_db, u_db
+    ;
 
-MongoClient.connect(m_url)
+MongoClient.connect(credential.game_db_url)
     .then(db => {
         g_db = db;
-        console.log('connect to mongodb success')
+        console.log('connect to mongodb(wxgames) success')
     })
-    .catch(err => console.log('connect to mongodb failed', err))
+    .catch(err => console.log('connect to mongodb(wxgames) failed', err))
+MongoClient.connect(credential.user_db_url)
+    .then(db => {
+        u_db = db;
+        console.log('connect to mongodb(user) success')
+    })
+    .catch(err => console.log('connect to mongodb(user) failed', err))
 app.set('port', process.env.PORT || 7900);
 
 nunjucks.configure('views', {
     autoescape: true,
     express: app
 });
-app.use(session({ secret: 'freego2017-11-07' }));
+app.use(session({ secret: credential.session_key }));
 app.use(require('express').static(__dirname + '/public'));
 
 app.use(helmet());
@@ -136,10 +144,9 @@ app.post('/save_gestures', (req, res) => {
         res.end('ok');
     })
 });
-const mch_map = {
-    "102580087392":"324a076a3f4ea0d6be16893ffef53a16",
-    "102510091331":"743f4c152fadd357b729395bb1d2f634"
-}
+const do_login = require('./dealers/login')
+
+do_login(app, io, u_db)
 app.post('/buy_product', function (req, res) {
     if (!req.body) return res.sendStatus(400);
     let data = req.body;
@@ -299,28 +306,28 @@ io.on('connection', function (socket) {
                 }
             }
         )
-        .then( r=>{
-            let order = r.value;
-            // console.log(order)
-            let noty = `买家:${order.buyer_nickname}，购买的商品（${order.title}），总价：${order.total}元。${data.to_status}`;
-            let sock = uuid2sock[order.buyer_id];
-            if (sock) {
-                sock.emit('system_notification', noty);
-            }
-            sock = uuid2sock[order.seller_id];
-            if (sock) {
-                sock.emit('system_notification', noty);
-            }
-        })
+            .then(r => {
+                let order = r.value;
+                // console.log(order)
+                let noty = `买家:${order.buyer_nickname}，购买的商品（${order.title}），总价：${order.total}元。${data.to_status}`;
+                let sock = uuid2sock[order.buyer_id];
+                if (sock) {
+                    sock.emit('system_notification', noty);
+                }
+                sock = uuid2sock[order.seller_id];
+                if (sock) {
+                    sock.emit('system_notification', noty);
+                }
+            })
     });
     socket.on('get_orders', function (openid, cb) {
         g_db.collection('bazaar_orders')
-        .find({ $or: [ { buyer_id: openid }, { seller_id: openid } ] })
-        .toArray()
-        .then(orders=>{
-            // console.log(orders)
-            cb(orders)
-        })
+            .find({ $or: [{ buyer_id: openid }, { seller_id: openid }] })
+            .toArray()
+            .then(orders => {
+                // console.log(orders)
+                cb(orders)
+            })
     });
     socket.on('ferret', function (name, fn) {
         fn('woot');
@@ -333,7 +340,7 @@ io.on('connection', function (socket) {
 
 // 备注：服务端签名用timeStamp、客户端发送用timestamp
 function sign_jsapi_pay_data(param) {
-    const partner_key = 'X5i69E6ZxL5ip15By0oUi3Fr8hINscgO';
+    const partner_key = credential.wx_partner_key;
     var querystring = Object.keys(param).filter(function (key) {
         return param[key] !== undefined && param[key] !== '' && ['pfx', 'partner_key', 'key'].indexOf(key) < 0;
     }).sort();

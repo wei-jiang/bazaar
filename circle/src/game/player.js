@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import AniClip from './clip'
 import net from '../net'
+import util from '../common/util'
 
 //position for lng/lat, point/pos for x/y in pixel
 class Player extends BMap.Overlay {
@@ -247,10 +248,10 @@ class Player extends BMap.Overlay {
     this.vx = this.vy = 0;
   }
   move(dx, dy) {
-    console.log(dx, dy)
+    // console.log(dx, dy)
     let magnitude = Math.sqrt(dx * dx + dy * dy);
     dx /= magnitude;
-    dy /= magnitude * -1;
+    dy /= magnitude * -1; //invert dir
 
     this.vy = dy * 2;
     this.vx = dx * 2;

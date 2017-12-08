@@ -24,6 +24,7 @@
 <script>
 import dealer from "../js/dealer";
 import RegCanvas from "../js/reg_canvas";
+import game from '../game/game';
 export default {
   name: "GamePage",
   props: {
@@ -72,7 +73,7 @@ export default {
       this.show_header(data);
     });
     this.$root.$on("count_changed", data => {
-      this.online_count = data;
+      this.online_count = data + game.robots.length;
     });
   },
   methods: {

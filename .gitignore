@@ -56,7 +56,7 @@ typings/
 *.map
 # Yarn Integrity file
 .yarn-integrity
-
+secret.js
 # dotenv environment variables file
 .env
 

@@ -75,12 +75,12 @@ class Robot extends Player {
         let interval = util.getRandInt(2, 10) * 1000;
         setTimeout(this.roaming.bind(this), interval)
     }
-    babble() {
+    static speak_of(r) {
         let i = util.getRandInt(0, poem.length - 1);
         let data = {
-            from: this.wi.nickname,
+            from: r.wi.nickname,
             to: '所有人',
-            headimgurl: this.wi.headimgurl,
+            headimgurl: r.wi.headimgurl,
             content: poem[i],
             dt: moment().format("YYYY-MM-DD HH:mm:ss")
         };
@@ -93,10 +93,13 @@ class Robot extends Player {
             db.chat_log.insert(data);
             vm.$emit('refresh_chat_log', '');
         });
+      }
+    babble() {
+        Robot.speak_of_throttle(this)
         let interval = util.getRandInt(60, 3600) * 1000;
         setTimeout(this.babble.bind(this), interval)
     }
 
 }
-
+Robot.speak_of_throttle = _.throttle(Robot.speak_of, 4000)
 export default Robot;

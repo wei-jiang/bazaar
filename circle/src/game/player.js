@@ -25,11 +25,17 @@ class Player extends BMap.Overlay {
       walkDown: [20, 27],
       walkRight: [29, 36]
     };
-    this.last_face2 = this.states.right;
+    let f2 = [this.states.up, this.states.left, this.states.down, this.states.right];    
+    this.last_face2 = f2[ util.getRandInt(0, 3) ]
     this.can_play_anim = true;
     this.fatigue_tm = null;
+    //todo: no add in map earlier
     this.map = map;
-    this.map.addOverlay(this);
+    this.in_map = false;
+    if( this.is_main_player() ){
+      this.map.addOverlay(this);  
+    } 
+    this.draw_slowly = _.throttle( this.draw.bind(this), 250);
   }
   initialize(map) {
     // 创建div元素，作为自定义覆盖物的容器
@@ -57,6 +63,8 @@ class Player extends BMap.Overlay {
       width: 64,
       height: 64
     })
+    this.in_map = true;
+    // console.log(`${this.wi.nickname} already in map`)
     // this.ani_walk_left()
     return div;
   }
@@ -152,16 +160,45 @@ class Player extends BMap.Overlay {
       lat: vy * latPerPixel
     }
   }
+  is_nearby_mplayer(){    
+    let m_pos = this.map.mplayer.position;
+    let span = this.map.getBounds().toSpan();
+    let in_sight_lng = span.lng / 2 + span.lng / 4;
+    let in_sight_lat = span.lat / 2 + span.lat / 4;
+    if( Math.abs(this.position.lng - m_pos.lng) < in_sight_lng
+        && Math.abs(this.position.lat - m_pos.lat) < in_sight_lat){
+          return true;
+    }
+    return false;
+  }
   update() {
-    this.animate();
-    this.do_move()
-    //main player
-    if( this.is_main_player() ){
+    if( this.is_main_player() ) {
+      this.animate();
+      this.do_move()
       window.vm.$emit('player_coordinate', this.get_loc());
-    }    
+      // window.vm.$emit('debug_info', '地图人数：'+this.map.getOverlays().length);
+      
+    } else{
+      if( this.is_nearby_mplayer() ){
+        if(this.in_map){
+          this.animate();
+          this.do_move()
+        } else {
+          // console.log('add robot to map')
+          this.map.addOverlay(this);  
+        }
+      } else {
+        //far away from main player
+        this.vanish();
+      }
+    }   
   }
   vanish() {
-    this.map.removeOverlay(this)
+    if(this.in_map){
+      this.map.removeOverlay(this)
+      this.in_map = false;
+      // console.log(`${this.wi.nickname} removed from map`)
+    }    
   }
   set_center() {
     this.map.setCenter(this.position)
@@ -232,7 +269,12 @@ class Player extends BMap.Overlay {
       let delta = this.pixel2LngLat(this.vx, this.vy)
       this.position.lng += delta.lng;
       this.position.lat += delta.lat;
-      this.draw();
+      if( this.is_main_player() ){
+        this.draw();
+      } else{
+        this.draw_slowly();
+      }
+      
     } else {
 
     }

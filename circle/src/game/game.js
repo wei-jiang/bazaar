@@ -21,37 +21,19 @@ class Game {
     });
     let mp = this.new_player( wi );    
     this.map.setCurrentCity("南岳");
-    this.mplayer = mp
+    this.map.mplayer = this.mplayer = mp
     this.cam = this.worldCamera();
     net.post_online(this.mplayer)
     //////////////////////////////////////
     this.spawn_robots()
+    // console.log(`window.innerWidth:${window.innerWidth},window.innerHeight:${window.innerHeight}`)
     //////////////////////////////////////
     setInterval(() => this.update(), 1000 / this.fps);
   }
   spawn_robots(){
     this.destroy_robots()
     let i = 0;
-    for(; i < 100; ++i){
-      let wi = {
-        openid: "robot"+i,
-        nickname: "路人甲"+i,
-        sex: "1",
-        language: "中文",
-        city: "长沙",
-        province: "湖南",
-        country: "中国",
-        headimgurl: "res/hi0.jpg"
-      };
-      let start_point = new BMap.Point(util.getRandFloat(112.744, 112.747), util.getRandFloat(27.237, 27.240) )
-      _.assign(wi, {
-        x: start_point.lng,
-        y: start_point.lat
-      });
-      let r = new Robot(this.map, wi)
-      this.robots.push(r)
-    }
-    // for(; i < 600; ++i){
+    // for(; i < 100; ++i){
     //   let wi = {
     //     openid: "robot"+i,
     //     nickname: "路人甲"+i,
@@ -62,7 +44,7 @@ class Game {
     //     country: "中国",
     //     headimgurl: "res/hi0.jpg"
     //   };
-    //   let start_point = new BMap.Point(util.getRandFloat(112.70, 112.79), util.getRandFloat(27.20, 27.29) )
+    //   let start_point = new BMap.Point(util.getRandFloat(112.744, 112.747), util.getRandFloat(27.237, 27.240) )
     //   _.assign(wi, {
     //     x: start_point.lng,
     //     y: start_point.lat
@@ -70,6 +52,25 @@ class Game {
     //   let r = new Robot(this.map, wi)
     //   this.robots.push(r)
     // }
+    for(; i < 2000; ++i){
+      let wi = {
+        openid: "robot"+i,
+        nickname: "路人甲"+i,
+        sex: "1",
+        language: "中文",
+        city: "长沙",
+        province: "湖南",
+        country: "中国",
+        headimgurl: "res/hi0.jpg"
+      };
+      let start_point = new BMap.Point(util.getRandFloat(112.70, 112.79), util.getRandFloat(27.20, 27.29) )
+      _.assign(wi, {
+        x: start_point.lng,
+        y: start_point.lat
+      });
+      let r = new Robot(this.map, wi)
+      this.robots.push(r)
+    }
   }
   destroy_robots(){
     _.each(this.robots, r=>{

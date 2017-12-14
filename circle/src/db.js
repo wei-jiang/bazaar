@@ -15,7 +15,8 @@ export default new Promise((resolve, reject) => {
                     chat_log: bazaarDB.getCollection("chat_log") ? bazaarDB.getCollection("chat_log") : bazaarDB.addCollection("chat_log"),
                     // orders: bazaarDB.getCollection("orders") ? bazaarDB.getCollection("orders") : bazaarDB.addCollection("orders"),
                     gestures: bazaarDB.getCollection("gestures") ? bazaarDB.getCollection("gestures") : bazaarDB.addCollection("gestures"),
-                    notification: bazaarDB.getCollection("notification") ? bazaarDB.getCollection("notification") : bazaarDB.addCollection("notification")
+                    notification: bazaarDB.getCollection("notification") ? bazaarDB.getCollection("notification") : bazaarDB.addCollection("notification"),
+                    scripts: bazaarDB.getCollection("scripts") ? bazaarDB.getCollection("scripts") : bazaarDB.addCollection("scripts")
                 }
                 resolve(db);
             },

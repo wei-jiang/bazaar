@@ -17,6 +17,10 @@
         <div v-if="info" class="debug">info:{{info}}</div>  
         <div class="count" >在线人数：{{online_count}}人</div>  
       </div>
+      <div id="mplayer">
+         <div>{{mp_nickname}}</div>
+         <img :src="mp_img" width="64" height="64"/>
+      </div>
     </game>
 
 </template>
@@ -57,6 +61,14 @@ export default {
       return /http/i.test(this.wi.headimgurl)
         ? this.wi.headimgurl
         : "res/hi0.jpg";
+    },
+    mp_img() {
+      return /http/i.test(wi.headimgurl)
+        ? wi.headimgurl
+        : "res/hi0.jpg";
+    },
+    mp_nickname() {
+      return wi.nickname;
     }
   },
   created: function() {
@@ -161,5 +173,13 @@ img {
 }
 canvas {
   /* background-color:black;   */
+}
+#mplayer{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
 }
 </style>

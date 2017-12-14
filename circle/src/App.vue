@@ -96,5 +96,11 @@ html, body,#allmap
   /* z-index: 99; */
   /* for phonon dialog also need to set */
 }
-
+#game {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+}
 </style>
